@@ -144,10 +144,13 @@ void BSR_ShowPerkMenu(int client)
 
     Menu menu = new Menu(BSR_MenuHandler_Perk);
     menu.SetTitle(
-        "Boss Slayer - Choose one perk\nPending rewards: %d\nPress 0 to choose later",
+        "Boss Slayer - Choose one perk\nPending rewards: %d\nPress 9 to choose later",
         pendingRewards
     );
-    menu.ExitButton = true;
+    menu.Pagination = MENU_NO_PAGINATION;
+    menu.ExitButton = false;
+
+    int displayedItems = 0;
 
     for (int index = 0; index < g_CurrentChoiceCount[client]; index++)
     {
@@ -174,12 +177,22 @@ void BSR_ShowPerkMenu(int client)
         );
 
         menu.AddItem(itemInfo, displayText);
+        displayedItems++;
     }
 
     if (BSR_GetPerkLevel(client, Perk_FateReroll) > 0 && !g_RerollUsed[client])
     {
         menu.AddItem("reroll", "Reroll these choices (free, once per reward)");
+        displayedItems++;
     }
+
+    while (displayedItems < 8)
+    {
+        menu.AddItem("spacer", "", ITEMDRAW_SPACER);
+        displayedItems++;
+    }
+
+    menu.AddItem("close", "Choose later / Close menu");
 
     if (menu.Display(client, MENU_TIME_FOREVER))
     {
@@ -234,6 +247,12 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
             BSR_GeneratePerkChoices(client, true);
             PrintToChat(client, "\x04[Boss Slayer]\x01 Fate Reroll replaced the current choices.");
             BSR_QueueNextPerkMenu(client);
+            return 0;
+        }
+
+        if (StrEqual(itemInfo, "close"))
+        {
+            PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk when you are ready.");
             return 0;
         }
 

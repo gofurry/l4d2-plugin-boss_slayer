@@ -1,10 +1,10 @@
-# v0.6.0 回归测试
+# v0.6.1 回归测试
 
 ## 加载与菜单
 
-1. 执行 `sm plugins reload boss_slayer`，`sm plugins info boss_slayer` 应显示 `0.6.0`。
+1. 执行 `sm plugins reload boss_slayer`，`sm plugins info boss_slayer` 应显示 `0.6.1`。
 2. 输入 `!bsr_testreward`，应出现最多三个不同且未满级的能力。
-3. 关闭菜单再输入 `!perk`，选项应保持不变，奖励不应消失。
+3. 按数字键 `9` 关闭菜单，再输入 `!perk`，选项应保持不变，奖励不应消失。
 4. 设置 `!bsr_testperk 7 1` 后，每次奖励菜单应出现一次免费重掷；重掷后奖励数量不变，同一奖励不能再次重掷。
 5. 满级能力不应再次进入随机池。
 

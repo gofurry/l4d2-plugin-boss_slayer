@@ -18,10 +18,11 @@ void BSR_ShowExchangeMenu(int client)
 
     Menu menu = new Menu(BSR_MenuHandler_Exchange);
     menu.SetTitle(
-        "Boss Slayer - All perks maxed\nRedeem one reward\nPending rewards: %d",
+        "Boss Slayer - All perks maxed\nRedeem one reward\nPress 9 to choose later\nPending rewards: %d",
         BSR_GetPendingRewards(client)
     );
-    menu.ExitButton = true;
+    menu.Pagination = MENU_NO_PAGINATION;
+    menu.ExitButton = false;
 
     char itemInfo[16];
 
@@ -48,6 +49,13 @@ void BSR_ShowExchangeMenu(int client)
         "Receive one random throwable",
         !BSR_HasThrowable(client) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED
     );
+
+    for (int spacer = 0; spacer < 4; spacer++)
+    {
+        menu.AddItem("spacer", "", ITEMDRAW_SPACER);
+    }
+
+    menu.AddItem("close", "Choose later / Close menu");
 
     if (menu.Display(client, MENU_TIME_FOREVER))
     {
@@ -85,6 +93,12 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
         char itemInfo[16];
         if (!menu.GetItem(param2, itemInfo, sizeof(itemInfo)))
         {
+            return 0;
+        }
+
+        if (StrEqual(itemInfo, "close"))
+        {
+            PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk to redeem later.");
             return 0;
         }
 

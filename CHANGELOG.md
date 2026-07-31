@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1
+
+- Replaced the unreliable default `0` exit entry with an explicit `9` choose-later item in perk and exchange menus.
+
 ## 0.6.0
 
 - Personal death now retains the campaign build; mission loss restores the chapter-start snapshot.
