@@ -1,0 +1,477 @@
+"Phrases"
+{
+    "Boss Tank"
+    {
+        "en"    "Tank"
+    }
+    "Boss Witch"
+    {
+        "en"    "Witch"
+    }
+    "Boss Killer Reward"
+    {
+        "#format"    "{1:s},{2:d},{3:d}"
+        "en"    "You killed the {1}: +{2} perk choice(s). Pending: {3}."
+    }
+    "Boss Participant Reward"
+    {
+        "#format"    "{1:s},{2:d},{3:d}"
+        "en"    "You helped kill the {1}: +{2} perk choice(s). Pending: {3}."
+    }
+    "Special Kill Reward"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Reached {1} special-infected kills: +{2} perk choice(s). Pending: {3}."
+    }
+    "Common Kill Reward"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Reached {1} common-infected kills: +{2} perk choice(s). Pending: {3}."
+    }
+    "Chapter Entry Reward"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "New chapter reward: +{1} perk choice(s). Pending: {2}."
+    }
+    "Death Build Retained"
+    {
+        "en"    "You died, but your campaign build was retained."
+    }
+    "Mission Lost Restored"
+    {
+        "en"    "Mission lost. Builds restored to the chapter-start state."
+    }
+    "Campaign Complete Reset"
+    {
+        "en"    "Campaign completed. All builds have been reset."
+    }
+    "Boss Healing Triggered"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Boss Healing restored up to {1} real and {2} temporary health."
+    }
+    "Survival Rhythm Triggered"
+    {
+        "#format"    "{1:d}"
+        "en"    "Survival Rhythm restored up to {1} temporary health."
+    }
+    "Medical Supply Granted"
+    {
+        "en"    "Medical Supply granted a random medical item."
+    }
+    "Throwable Supply Granted"
+    {
+        "en"    "Throwable Supply granted a random throwable."
+    }
+    "Supply Conditioning Stack"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Supply Conditioning: {1}/{2} stacks; five stats +{3}%%."
+    }
+
+    "Perk Menu Title"
+    {
+        "#format"    "{1:d}"
+        "en"    "Boss Slayer - Choose one perk\nPending rewards: {1}\nPress 9 to choose later"
+    }
+    "Perk Menu Item"
+    {
+        "#format"    "{1:s},{2:d},{3:d},{4:s}"
+        "en"    "{1} Lv.{2} -> Lv.{3} ({4})"
+    }
+    "Menu Reroll"
+    {
+        "en"    "Reroll these choices (free, once per reward)"
+    }
+    "Menu Choose Later"
+    {
+        "en"    "Choose later"
+    }
+    "Perk Menu Open Failed"
+    {
+        "en"    "The perk menu could not open. Type !perk to try again."
+    }
+    "Reward No Longer Available"
+    {
+        "en"    "This reward is no longer available."
+    }
+    "Reroll Already Used"
+    {
+        "en"    "This reward has already been rerolled."
+    }
+    "Reroll Completed"
+    {
+        "en"    "Fate Reroll replaced the current choices."
+    }
+    "Reward Saved"
+    {
+        "en"    "Reward saved. Type !perk when you are ready."
+    }
+    "Perk Already Maxed"
+    {
+        "en"    "That perk is already at maximum level."
+    }
+    "SteamID Not Ready"
+    {
+        "en"    "Your SteamID is not ready. The reward was not spent."
+    }
+    "Reward Spend Failed"
+    {
+        "en"    "Could not spend the reward. Please try again."
+    }
+    "Perk Selected"
+    {
+        "#format"    "{1:s},{2:d},{3:s}"
+        "en"    "Selected {1} Lv.{2}. {3}"
+    }
+
+    "Exchange Menu Title"
+    {
+        "#format"    "{1:d}"
+        "en"    "Boss Slayer - All perks maxed\nRedeem one reward\nPress 9 to choose later\nPending rewards: {1}"
+    }
+    "Exchange Health"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Restore {1} real + {2} temporary health"
+    }
+    "Exchange Ammo"
+    {
+        "en"    "Refill primary reserve ammo"
+    }
+    "Exchange Medical"
+    {
+        "en"    "Receive one random medical item"
+    }
+    "Exchange Throwable"
+    {
+        "en"    "Receive one random throwable"
+    }
+    "Exchange Menu Open Failed"
+    {
+        "en"    "The exchange menu could not open. Type !perk to try again."
+    }
+    "Exchange Unavailable"
+    {
+        "en"    "That exchange is unavailable now. Your reward was not spent."
+    }
+    "Exchange Redeemed"
+    {
+        "#format"    "{1:d}"
+        "en"    "Reward redeemed. Remaining rewards: {1}."
+    }
+
+    "Command Human Survivor"
+    {
+        "#format"    "{1:s}"
+        "en"    "Use {1} as a human survivor in a coop or realism campaign."
+    }
+    "Must Be Alive"
+    {
+        "en"    "You must be alive to choose a perk."
+    }
+    "No Pending Rewards"
+    {
+        "en"    "You have no pending rewards."
+    }
+    "Status Summary"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Boss kills: {1} | Pending rewards: {2} | Perk levels: {3}"
+    }
+    "Status Special Kills"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Special-infected kills: {1} | Next reward: {2}/{3}"
+    }
+    "Status Common Kills"
+    {
+        "#format"    "{1:d},{2:d},{3:d}"
+        "en"    "Common-infected kills: {1} | Next reward: {2}/{3}"
+    }
+    "Build Menu Title"
+    {
+        "#format"    "{1:d},{2:d},{3:d},{4:d}"
+        "en"    "Boss Slayer - Current build\nPerk levels: {1} | Pending: {2}\nSupply stacks: {3}/{4}"
+    }
+    "Build Menu Item"
+    {
+        "#format"    "{1:s},{2:d},{3:d},{4:s}"
+        "en"    "{1} Lv.{2}/{3} - {4}"
+    }
+    "Build Menu Next Page"
+    {
+        "en"    "Next page"
+    }
+    "Build Menu Previous Page"
+    {
+        "en"    "Previous page"
+    }
+    "Build Menu Open Failed"
+    {
+        "en"    "The build menu could not open."
+    }
+
+    "Test Reward Granted"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Granted {1} test reward(s). Pending rewards: {2}."
+    }
+    "Debug Commands Disabled"
+    {
+        "en"    "Development commands are disabled by sm_bsr_debug_commands."
+    }
+    "Test Special Kills Added"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Added {1} test special-infected kill(s). Total: {2}."
+    }
+    "Test Common Kills Added"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Added {1} test common-infected kill(s). Total: {2}."
+    }
+    "Test Max Perks Granted"
+    {
+        "en"    "All perks maxed; one exchange reward granted."
+    }
+    "Test Perk IDs"
+    {
+        "en"    "IDs 0-13: Firepower, Toughness, Boss Healing, Melee Fury, Healing Boost, Medical Supply, Throwable Supply, Fate Reroll, Field Rescue, Ammo Reclamation, First Aid Feedback, Precision Hunter, Supply Conditioning, Survival Rhythm."
+    }
+    "Invalid Perk ID"
+    {
+        "en"    "Invalid perk ID. Use 0 through 13."
+    }
+    "Test Perk Set"
+    {
+        "#format"    "{1:s},{2:d},{3:d}"
+        "en"    "{1} set to Lv.{2}/{3}."
+    }
+    "Test Supply Stacks Set"
+    {
+        "#format"    "{1:d},{2:d}"
+        "en"    "Supply Conditioning stacks set to {1}/{2}."
+    }
+    "Build Manually Reset"
+    {
+        "en"    "Your build has been manually reset."
+    }
+    "Builds Admin Reset"
+    {
+        "en"    "All builds were reset by an administrator."
+    }
+    "Admin Reset Confirmed"
+    {
+        "en"    "All SteamID player data has been reset."
+    }
+
+    "Perk Firepower Name"
+    {
+        "en"    "Firepower"
+    }
+    "Perk Toughness Name"
+    {
+        "en"    "Toughness"
+    }
+    "Perk Boss Healing Name"
+    {
+        "en"    "Boss Healing"
+    }
+    "Perk Melee Fury Name"
+    {
+        "en"    "Melee Fury"
+    }
+    "Perk Healing Boost Name"
+    {
+        "en"    "Healing Boost"
+    }
+    "Perk Medical Supply Name"
+    {
+        "en"    "Medical Supply"
+    }
+    "Perk Throwable Supply Name"
+    {
+        "en"    "Throwable Supply"
+    }
+    "Perk Fate Reroll Name"
+    {
+        "en"    "Fate Reroll"
+    }
+    "Perk Field Rescue Name"
+    {
+        "en"    "Field Rescue"
+    }
+    "Perk Ammo Reclamation Name"
+    {
+        "en"    "Ammo Reclamation"
+    }
+    "Perk First Aid Feedback Name"
+    {
+        "en"    "First Aid Feedback"
+    }
+    "Perk Precision Hunter Name"
+    {
+        "en"    "Precision Hunter"
+    }
+    "Perk Supply Conditioning Name"
+    {
+        "en"    "Supply Conditioning"
+    }
+    "Perk Survival Rhythm Name"
+    {
+        "en"    "Survival Rhythm"
+    }
+    "Perk Unknown Name"
+    {
+        "en"    "Unknown Perk"
+    }
+
+    "Perk Firepower Description"
+    {
+        "#format" "{1:d}"
+        "en" "Direct damage +{1}%% per level; friendly fire is excluded."
+    }
+    "Perk Toughness Description"
+    {
+        "#format" "{1:d}"
+        "en" "Combat, fire, acid and friendly-fire damage -{1}%% per level."
+    }
+    "Perk Boss Healing Description"
+    {
+        "#format" "{1:d},{2:d}"
+        "en" "Boss kills restore {1} real and {2} temporary health per level."
+    }
+    "Perk Melee Fury Description"
+    {
+        "#format" "{1:d}"
+        "en" "Melee attack speed +{1}%% per level."
+    }
+    "Perk Healing Boost Description"
+    {
+        "#format" "{1:d}"
+        "en" "Medkit, pills and adrenaline healing +{1}%% per level."
+    }
+    "Perk Medical Supply Description"
+    {
+        "#format" "{1:d}"
+        "en" "After {1} seconds without medicine, receive one random medical item."
+    }
+    "Perk Throwable Supply Description"
+    {
+        "#format" "{1:d}"
+        "en" "After {1} seconds without a throwable, receive one at random."
+    }
+    "Perk Fate Reroll Description"
+    {
+        "en" "Reroll each perk choice once without spending the reward."
+    }
+    "Perk Field Rescue Description"
+    {
+        "#format" "{1:d}"
+        "en" "Revive and ledge-rescue speed +{1}%% per level."
+    }
+    "Perk Ammo Reclamation Description"
+    {
+        "#format" "{1:d}"
+        "en" "Special-infected kills restore {1}%% max reserve ammo per level."
+    }
+    "Perk First Aid Feedback Description"
+    {
+        "#format" "{1:d}"
+        "en" "Healing a teammate with a medkit grants {1} temporary health per level."
+    }
+    "Perk Precision Hunter Description"
+    {
+        "#format" "{1:d}"
+        "en" "Primary-weapon kills on special infected return {1} round(s) per level to the magazine; grenade launchers are excluded."
+    }
+    "Perk Supply Conditioning Description"
+    {
+        "#format" "{1:d},{2:d}"
+        "en" "First supply use each chapter adds {1}%% to five stats, up to {2}%%."
+    }
+    "Perk Survival Rhythm Description"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "en" "Below {1} effective health, gain {2} temporary health per level every {3}s."
+    }
+    "Perk Unknown Description"
+    {
+        "en"    "No description."
+    }
+
+    "Perk Firepower Short"
+    {
+        "#format" "{1:d}"
+        "en" "damage +{1}%%/level"
+    }
+    "Perk Toughness Short"
+    {
+        "#format" "{1:d}"
+        "en" "damage taken -{1}%%/level"
+    }
+    "Perk Boss Healing Short"
+    {
+        "#format" "{1:d},{2:d}"
+        "en" "Boss kill +{1} real/+{2} temp/level"
+    }
+    "Perk Melee Fury Short"
+    {
+        "#format" "{1:d}"
+        "en" "melee speed +{1}%%/level"
+    }
+    "Perk Healing Boost Short"
+    {
+        "#format" "{1:d}"
+        "en" "healing +{1}%%/level"
+    }
+    "Perk Medical Supply Short"
+    {
+        "#format" "{1:d}"
+        "en" "medicine after {1}s empty"
+    }
+    "Perk Throwable Supply Short"
+    {
+        "#format" "{1:d}"
+        "en" "throwable after {1}s empty"
+    }
+    "Perk Fate Reroll Short"
+    {
+        "en"    "1 free reroll/reward"
+    }
+    "Perk Field Rescue Short"
+    {
+        "#format" "{1:d}"
+        "en" "rescue speed +{1}%%/level"
+    }
+    "Perk Ammo Reclamation Short"
+    {
+        "#format" "{1:d}"
+        "en" "SI kill +{1}%% reserve/level"
+    }
+    "Perk First Aid Feedback Short"
+    {
+        "#format" "{1:d}"
+        "en" "teammate medkit +{1} temp/level"
+    }
+    "Perk Precision Hunter Short"
+    {
+        "#format" "{1:d}"
+        "en" "primary SI kill +{1} mag round/level"
+    }
+    "Perk Supply Conditioning Short"
+    {
+        "#format" "{1:d},{2:d}"
+        "en" "five stats +{1}%%/chapter, max {2}%%"
+    }
+    "Perk Survival Rhythm Short"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "en" "below {3}: +{1} temp/{2}s/level"
+    }
+    "Perk Unknown Short"
+    {
+        "en"    "Unknown effect"
+    }
+}

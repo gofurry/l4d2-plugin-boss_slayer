@@ -55,7 +55,9 @@ void BSR_ResolveBossRewards(
             continue;
         }
 
-        int rewardAmount = isKiller ? 2 : 1;
+        int rewardAmount = isKiller
+            ? BSR_GetBossKillerRewards()
+            : BSR_GetBossParticipantRewards();
 
         if (isKiller)
         {
@@ -64,33 +66,38 @@ void BSR_ResolveBossRewards(
             BSR_IncrementBossKills(client);
         }
 
-        if (!BSR_AddPendingRewards(client, rewardAmount))
+        if (rewardAmount <= 0 || !BSR_AddPendingRewards(client, rewardAmount))
         {
             continue;
         }
 
+        char localizedBoss[32];
+        FormatEx(localizedBoss, sizeof(localizedBoss), "%T", bossName, client);
+
         if (isKiller)
         {
-            PrintToChat(
+            BSR_PrintChat(
                 client,
-                "\x04[Boss Slayer]\x01 You killed the %s: +2 perk choices.",
-                bossName
+                BSR_Message_Normal,
+                "%t",
+                "Boss Killer Reward",
+                localizedBoss,
+                rewardAmount,
+                BSR_GetPendingRewards(client)
             );
         }
         else
         {
-            PrintToChat(
+            BSR_PrintChat(
                 client,
-                "\x04[Boss Slayer]\x01 You helped kill the %s: +1 perk choice.",
-                bossName
+                BSR_Message_Normal,
+                "%t",
+                "Boss Participant Reward",
+                localizedBoss,
+                rewardAmount,
+                BSR_GetPendingRewards(client)
             );
         }
-
-        PrintToChat(
-            client,
-            "\x04[Boss Slayer]\x01 Pending rewards: %d",
-            BSR_GetPendingRewards(client)
-        );
 
         BSR_ShowPerkMenu(client);
     }
@@ -107,24 +114,25 @@ void BSR_RecordSpecialInfectedKill(int client)
         return;
     }
 
-    if ((specialKills % SPECIAL_KILLS_PER_REWARD) != 0)
+    int killsPerReward = BSR_GetSpecialKillsPerReward();
+    if ((specialKills % killsPerReward) != 0)
     {
         return;
     }
 
-    if (!BSR_AddPendingRewards(client, 1))
+    int rewardAmount = BSR_GetSpecialKillRewards();
+    if (rewardAmount <= 0 || !BSR_AddPendingRewards(client, rewardAmount))
     {
         return;
     }
 
-    PrintToChat(
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 %d special infected kills reached: +1 perk choice.",
-        specialKills
-    );
-    PrintToChat(
-        client,
-        "\x04[Boss Slayer]\x01 Pending rewards: %d",
+        BSR_Message_Normal,
+        "%t",
+        "Special Kill Reward",
+        specialKills,
+        rewardAmount,
         BSR_GetPendingRewards(client)
     );
 
@@ -140,24 +148,25 @@ void BSR_RecordCommonInfectedKill(int client)
         return;
     }
 
-    if ((commonKills % COMMON_KILLS_PER_REWARD) != 0)
+    int killsPerReward = BSR_GetCommonKillsPerReward();
+    if ((commonKills % killsPerReward) != 0)
     {
         return;
     }
 
-    if (!BSR_AddPendingRewards(client, 1))
+    int rewardAmount = BSR_GetCommonKillRewards();
+    if (rewardAmount <= 0 || !BSR_AddPendingRewards(client, rewardAmount))
     {
         return;
     }
 
-    PrintToChat(
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 %d common infected kills reached: +1 perk choice.",
-        commonKills
-    );
-    PrintToChat(
-        client,
-        "\x04[Boss Slayer]\x01 Pending rewards: %d",
+        BSR_Message_Normal,
+        "%t",
+        "Common Kill Reward",
+        commonKills,
+        rewardAmount,
         BSR_GetPendingRewards(client)
     );
 
@@ -190,7 +199,8 @@ void BSR_TryGrantMapEntryReward(int client)
         return;
     }
 
-    if (!BSR_AddPendingRewards(client, 1))
+    int rewardAmount = BSR_GetChapterRewards();
+    if (rewardAmount <= 0 || !BSR_AddPendingRewards(client, rewardAmount))
     {
         return;
     }
@@ -204,13 +214,12 @@ void BSR_TryGrantMapEntryReward(int client)
     // team wipes, the unspent reward is restored and can be chosen again.
     BSR_CaptureChapterSnapshotForClient(client);
 
-    PrintToChat(
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 New chapter compensation: +1 perk choice."
-    );
-    PrintToChat(
-        client,
-        "\x04[Boss Slayer]\x01 Pending rewards: %d",
+        BSR_Message_Normal,
+        "%t",
+        "Chapter Entry Reward",
+        rewardAmount,
         BSR_GetPendingRewards(client)
     );
 

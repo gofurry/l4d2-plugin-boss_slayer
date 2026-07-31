@@ -1,0 +1,477 @@
+"Phrases"
+{
+    "Boss Tank"
+    {
+        "chi"    "Tank"
+    }
+    "Boss Witch"
+    {
+        "chi"    "Witch"
+    }
+    "Boss Killer Reward"
+    {
+        "#format" "{1:s},{2:d},{3:d}"
+        "chi" "你击杀了 {1}：获得 {2} 次强化选择。待选择：{3}。"
+    }
+    "Boss Participant Reward"
+    {
+        "#format" "{1:s},{2:d},{3:d}"
+        "chi" "你参与击杀了 {1}：获得 {2} 次强化选择。待选择：{3}。"
+    }
+    "Special Kill Reward"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "已累计击杀 {1} 只特感：获得 {2} 次强化选择。待选择：{3}。"
+    }
+    "Common Kill Reward"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "已累计击杀 {1} 只普通感染者：获得 {2} 次强化选择。待选择：{3}。"
+    }
+    "Chapter Entry Reward"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "新章节奖励：获得 {1} 次强化选择。待选择：{2}。"
+    }
+    "Death Build Retained"
+    {
+        "chi"    "你已经死亡，但战役构筑仍然保留。"
+    }
+    "Mission Lost Restored"
+    {
+        "chi"    "关卡失败，所有构筑已回滚到本章开始时的状态。"
+    }
+    "Campaign Complete Reset"
+    {
+        "chi"    "战役完成，所有构筑已经清零。"
+    }
+    "Boss Healing Triggered"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "猎杀疗愈最多恢复了 {1} 点真实生命和 {2} 点临时生命。"
+    }
+    "Survival Rhythm Triggered"
+    {
+        "#format" "{1:d}"
+        "chi" "求生律动最多恢复了 {1} 点临时生命。"
+    }
+    "Medical Supply Granted"
+    {
+        "chi"    "医疗补给发放了一件随机医疗物资。"
+    }
+    "Throwable Supply Granted"
+    {
+        "chi"    "投掷物补给发放了一件随机投掷物。"
+    }
+    "Supply Conditioning Stack"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "补给强化：{1}/{2} 层，五项属性提高 {3}%%。"
+    }
+
+    "Perk Menu Title"
+    {
+        "#format" "{1:d}"
+        "chi" "Boss Slayer - 选择一项能力\n待选择奖励：{1}\n按 9 稍后选择"
+    }
+    "Perk Menu Item"
+    {
+        "#format" "{1:s},{2:d},{3:d},{4:s}"
+        "chi" "{1} Lv.{2} -> Lv.{3}（{4}）"
+    }
+    "Menu Reroll"
+    {
+        "chi"    "重抽本次选项（免费，每次奖励限一次）"
+    }
+    "Menu Choose Later"
+    {
+        "chi"    "稍后选择"
+    }
+    "Perk Menu Open Failed"
+    {
+        "chi"    "强化菜单打开失败，请输入 !perk 重试。"
+    }
+    "Reward No Longer Available"
+    {
+        "chi"    "这次奖励已经不可用。"
+    }
+    "Reroll Already Used"
+    {
+        "chi"    "这次奖励已经重抽过。"
+    }
+    "Reroll Completed"
+    {
+        "chi"    "命运重掷已经替换本次选项。"
+    }
+    "Reward Saved"
+    {
+        "chi"    "奖励已经保留，准备好后输入 !perk。"
+    }
+    "Perk Already Maxed"
+    {
+        "chi"    "这项能力已经满级。"
+    }
+    "SteamID Not Ready"
+    {
+        "chi"    "SteamID 尚未准备好，本次奖励没有消耗。"
+    }
+    "Reward Spend Failed"
+    {
+        "chi"    "奖励消耗失败，请重试。"
+    }
+    "Perk Selected"
+    {
+        "#format" "{1:s},{2:d},{3:s}"
+        "chi" "已选择 {1} Lv.{2}。{3}"
+    }
+
+    "Exchange Menu Title"
+    {
+        "#format" "{1:d}"
+        "chi" "Boss Slayer - 所有能力已满级\n兑换一次奖励\n按 9 稍后选择\n待选择奖励：{1}"
+    }
+    "Exchange Health"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "恢复 {1} 点真实生命＋{2} 点临时生命"
+    }
+    "Exchange Ammo"
+    {
+        "chi"    "补满主武器备弹"
+    }
+    "Exchange Medical"
+    {
+        "chi"    "获得一件随机医疗物资"
+    }
+    "Exchange Throwable"
+    {
+        "chi"    "获得一件随机投掷物"
+    }
+    "Exchange Menu Open Failed"
+    {
+        "chi"    "兑换菜单打开失败，请输入 !perk 重试。"
+    }
+    "Exchange Unavailable"
+    {
+        "chi"    "当前无法兑换该奖励，奖励次数没有消耗。"
+    }
+    "Exchange Redeemed"
+    {
+        "#format" "{1:d}"
+        "chi" "奖励兑换成功，剩余奖励：{1}。"
+    }
+
+    "Command Human Survivor"
+    {
+        "#format" "{1:s}"
+        "chi" "请以合作或写实战役中的真人幸存者身份使用 {1}。"
+    }
+    "Must Be Alive"
+    {
+        "chi"    "你必须存活才能选择能力。"
+    }
+    "No Pending Rewards"
+    {
+        "chi"    "你没有尚未使用的奖励。"
+    }
+    "Status Summary"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "Boss 击杀：{1}｜待选择：{2}｜能力总等级：{3}"
+    }
+    "Status Special Kills"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "特感击杀：{1}｜下次奖励：{2}/{3}"
+    }
+    "Status Common Kills"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "普通感染者击杀：{1}｜下次奖励：{2}/{3}"
+    }
+    "Build Menu Title"
+    {
+        "#format" "{1:d},{2:d},{3:d},{4:d}"
+        "chi" "Boss Slayer - 当前构筑\n能力总等级：{1}｜待选择：{2}\n补给强化：{3}/{4} 层"
+    }
+    "Build Menu Item"
+    {
+        "#format" "{1:s},{2:d},{3:d},{4:s}"
+        "chi" "{1} Lv.{2}/{3} - {4}"
+    }
+    "Build Menu Next Page"
+    {
+        "chi" "下一页"
+    }
+    "Build Menu Previous Page"
+    {
+        "chi" "上一页"
+    }
+    "Build Menu Open Failed"
+    {
+        "chi"    "构筑菜单打开失败。"
+    }
+
+    "Test Reward Granted"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "已发放 {1} 次测试奖励，待选择：{2}。"
+    }
+    "Debug Commands Disabled"
+    {
+        "chi" "开发调试命令已被 sm_bsr_debug_commands 禁用。"
+    }
+    "Test Special Kills Added"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "已增加 {1} 次测试特感击杀，总计：{2}。"
+    }
+    "Test Common Kills Added"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "已增加 {1} 次测试小怪击杀，总计：{2}。"
+    }
+    "Test Max Perks Granted"
+    {
+        "chi"    "所有能力已设为满级，并发放了一次兑换奖励。"
+    }
+    "Test Perk IDs"
+    {
+        "chi"    "编号 0-13：火力强化、坚韧、猎杀疗愈、近战狂热、治疗强化、医疗补给、投掷物补给、命运重掷、战地救援、弹药回收、急救反馈、精准猎杀、补给强化、求生律动。"
+    }
+    "Invalid Perk ID"
+    {
+        "chi"    "无效的能力编号，请使用 0 到 13。"
+    }
+    "Test Perk Set"
+    {
+        "#format" "{1:s},{2:d},{3:d}"
+        "chi" "已将 {1} 设为 Lv.{2}/{3}。"
+    }
+    "Test Supply Stacks Set"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "补给强化层数已设为 {1}/{2}。"
+    }
+    "Build Manually Reset"
+    {
+        "chi"    "你的构筑已手动清零。"
+    }
+    "Builds Admin Reset"
+    {
+        "chi"    "管理员已经清除所有玩家的构筑。"
+    }
+    "Admin Reset Confirmed"
+    {
+        "chi"    "所有 SteamID 玩家数据已经清除。"
+    }
+
+    "Perk Firepower Name"
+    {
+        "chi"    "火力强化"
+    }
+    "Perk Toughness Name"
+    {
+        "chi"    "坚韧"
+    }
+    "Perk Boss Healing Name"
+    {
+        "chi"    "猎杀疗愈"
+    }
+    "Perk Melee Fury Name"
+    {
+        "chi"    "近战狂热"
+    }
+    "Perk Healing Boost Name"
+    {
+        "chi"    "治疗强化"
+    }
+    "Perk Medical Supply Name"
+    {
+        "chi"    "医疗补给"
+    }
+    "Perk Throwable Supply Name"
+    {
+        "chi"    "投掷物补给"
+    }
+    "Perk Fate Reroll Name"
+    {
+        "chi"    "命运重掷"
+    }
+    "Perk Field Rescue Name"
+    {
+        "chi"    "战地救援"
+    }
+    "Perk Ammo Reclamation Name"
+    {
+        "chi"    "弹药回收"
+    }
+    "Perk First Aid Feedback Name"
+    {
+        "chi"    "急救反馈"
+    }
+    "Perk Precision Hunter Name"
+    {
+        "chi"    "精准猎杀"
+    }
+    "Perk Supply Conditioning Name"
+    {
+        "chi"    "补给强化"
+    }
+    "Perk Survival Rhythm Name"
+    {
+        "chi"    "求生律动"
+    }
+    "Perk Unknown Name"
+    {
+        "chi"    "未知能力"
+    }
+
+    "Perk Firepower Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级直接伤害提高 {1}%%，不增加友军伤害。"
+    }
+    "Perk Toughness Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级减少 {1}%% 战斗、火焰、酸液和友军伤害。"
+    }
+    "Perk Boss Healing Description"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "每级在击杀 Boss 后恢复 {1} 点真实生命和 {2} 点临时生命。"
+    }
+    "Perk Melee Fury Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级提高 {1}%% 近战攻击速度。"
+    }
+    "Perk Healing Boost Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级提高 {1}%% 医疗包、止痛药和肾上腺素治疗量。"
+    }
+    "Perk Medical Supply Description"
+    {
+        "#format" "{1:d}"
+        "chi" "连续 {1} 秒没有医疗物资时，随机获得一件。"
+    }
+    "Perk Throwable Supply Description"
+    {
+        "#format" "{1:d}"
+        "chi" "连续 {1} 秒没有投掷物时，随机获得一件。"
+    }
+    "Perk Fate Reroll Description"
+    {
+        "chi"    "每次强化选择可以免费重抽一次，且不消耗奖励。"
+    }
+    "Perk Field Rescue Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级提高 {1}%% 倒地救援和挂边救援速度。"
+    }
+    "Perk Ammo Reclamation Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级在击杀特感后恢复主武器最大备弹的 {1}%%。"
+    }
+    "Perk First Aid Feedback Description"
+    {
+        "#format" "{1:d}"
+        "chi" "每级在用医疗包治疗队友后获得 {1} 点临时生命。"
+    }
+    "Perk Precision Hunter Description"
+    {
+        "#format" "{1:d}"
+        "chi" "使用榴弹发射器以外的主武器击杀特感时，每级向弹匣返还 {1} 发子弹。"
+    }
+    "Perk Supply Conditioning Description"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "每章首次使用补给品使五项属性提高 {1}%%，最高 {2}%%。"
+    }
+    "Perk Survival Rhythm Description"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "有效生命低于 {1} 时，每 {3} 秒按等级获得 {2} 点临时生命。"
+    }
+    "Perk Unknown Description"
+    {
+        "chi"    "没有说明。"
+    }
+
+    "Perk Firepower Short"
+    {
+        "#format" "{1:d}"
+        "chi" "伤害 +{1}%%/级"
+    }
+    "Perk Toughness Short"
+    {
+        "#format" "{1:d}"
+        "chi" "承伤 -{1}%%/级"
+    }
+    "Perk Boss Healing Short"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "Boss击杀 +{1}实/+{2}虚/级"
+    }
+    "Perk Melee Fury Short"
+    {
+        "#format" "{1:d}"
+        "chi" "近战攻速 +{1}%%/级"
+    }
+    "Perk Healing Boost Short"
+    {
+        "#format" "{1:d}"
+        "chi" "治疗量 +{1}%%/级"
+    }
+    "Perk Medical Supply Short"
+    {
+        "#format" "{1:d}"
+        "chi" "空医疗栏{1}秒后补给"
+    }
+    "Perk Throwable Supply Short"
+    {
+        "#format" "{1:d}"
+        "chi" "空投掷栏{1}秒后补给"
+    }
+    "Perk Fate Reroll Short"
+    {
+        "chi"    "每次奖励免费重抽1次"
+    }
+    "Perk Field Rescue Short"
+    {
+        "#format" "{1:d}"
+        "chi" "救援速度 +{1}%%/级"
+    }
+    "Perk Ammo Reclamation Short"
+    {
+        "#format" "{1:d}"
+        "chi" "特感击杀 +{1}%%备弹/级"
+    }
+    "Perk First Aid Feedback Short"
+    {
+        "#format" "{1:d}"
+        "chi" "治疗队友 +{1}虚血/级"
+    }
+    "Perk Precision Hunter Short"
+    {
+        "#format" "{1:d}"
+        "chi" "主武器特感击杀 +{1}弹/级"
+    }
+    "Perk Supply Conditioning Short"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "每章五属性 +{1}%%，最多{2}%%"
+    }
+    "Perk Survival Rhythm Short"
+    {
+        "#format" "{1:d},{2:d},{3:d}"
+        "chi" "低血每{2}秒 +{1}虚血/级"
+    }
+    "Perk Unknown Short"
+    {
+        "chi"    "未知效果"
+    }
+}

@@ -7,6 +7,9 @@
 
 #include <boss_slayer/definitions>
 #include <boss_slayer/state>
+#include <boss_slayer/config>
+#include <boss_slayer/messages>
+#include <boss_slayer/game_mode>
 #include <boss_slayer/storage>
 #include <boss_slayer/chapter_snapshot>
 #include <boss_slayer/perks>
@@ -31,7 +34,10 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+    LoadTranslations("boss_slayer.phrases");
     BSR_InitializeState();
+    BSR_InitializeConfig();
+    BSR_InitializeGameMode();
     BSR_InitializeEffects();
     BSR_RegisterEvents();
     BSR_RegisterCommands();

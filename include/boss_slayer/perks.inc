@@ -26,99 +26,310 @@ int BSR_GetPerkMaxLevel(PerkType perk)
     return 0;
 }
 
-void BSR_GetPerkName(PerkType perk, char[] buffer, int maxLength)
-{
-    switch (perk)
-    {
-        case Perk_Firepower:       strcopy(buffer, maxLength, "Firepower");
-        case Perk_Toughness:       strcopy(buffer, maxLength, "Toughness");
-        case Perk_BossHealing:     strcopy(buffer, maxLength, "Boss Healing");
-        case Perk_MeleeSpeed:      strcopy(buffer, maxLength, "Melee Fury");
-        case Perk_HealingBoost:    strcopy(buffer, maxLength, "Healing Boost");
-        case Perk_MedicalSupply:   strcopy(buffer, maxLength, "Medical Supply");
-        case Perk_ThrowableSupply: strcopy(buffer, maxLength, "Throwable Supply");
-        case Perk_FateReroll:      strcopy(buffer, maxLength, "Fate Reroll");
-        case Perk_FieldRescue:     strcopy(buffer, maxLength, "Field Rescue");
-        case Perk_AmmoReclamation: strcopy(buffer, maxLength, "Ammo Reclamation");
-        case Perk_FirstAidFeedback:strcopy(buffer, maxLength, "First Aid Feedback");
-        case Perk_PrecisionHunter: strcopy(buffer, maxLength, "Sniper Rebate");
-        case Perk_SupplyTraining:  strcopy(buffer, maxLength, "Supply Conditioning");
-        case Perk_LowHealthRecovery:strcopy(buffer, maxLength, "Survival Rhythm");
-        default:                   strcopy(buffer, maxLength, "Unknown Perk");
-    }
-}
-
-void BSR_GetPerkDescription(PerkType perk, char[] buffer, int maxLength)
+void BSR_GetPerkName(int client, PerkType perk, char[] buffer, int maxLength)
 {
     switch (perk)
     {
         case Perk_Firepower:
-            strcopy(buffer, maxLength, "Direct damage +10% per level; friendly fire is excluded.");
+            FormatEx(buffer, maxLength, "%T", "Perk Firepower Name", client);
         case Perk_Toughness:
-            strcopy(buffer, maxLength, "Combat, fire, acid and friendly-fire damage -6% per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Toughness Name", client);
         case Perk_BossHealing:
-            strcopy(buffer, maxLength, "Boss kill restores 10 real and 10 temporary health per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Boss Healing Name", client);
         case Perk_MeleeSpeed:
-            strcopy(buffer, maxLength, "Melee attack speed +8% per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Melee Fury Name", client);
         case Perk_HealingBoost:
-            strcopy(buffer, maxLength, "Medkit, pills and adrenaline healing +6% per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Healing Boost Name", client);
         case Perk_MedicalSupply:
-            strcopy(buffer, maxLength, "After 180 seconds without medicine, receive one random medical item.");
+            FormatEx(buffer, maxLength, "%T", "Perk Medical Supply Name", client);
         case Perk_ThrowableSupply:
-            strcopy(buffer, maxLength, "After 180 seconds without a throwable, receive one at random.");
+            FormatEx(buffer, maxLength, "%T", "Perk Throwable Supply Name", client);
         case Perk_FateReroll:
-            strcopy(buffer, maxLength, "Reroll each perk choice once without spending the reward.");
+            FormatEx(buffer, maxLength, "%T", "Perk Fate Reroll Name", client);
         case Perk_FieldRescue:
-            strcopy(buffer, maxLength, "Revive and ledge-rescue speed +8% per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Field Rescue Name", client);
         case Perk_AmmoReclamation:
-            strcopy(buffer, maxLength, "Special-infected kills restore 2% max reserve ammo per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk Ammo Reclamation Name", client);
         case Perk_FirstAidFeedback:
-            strcopy(buffer, maxLength, "Healing a teammate with a medkit grants 5 temporary health per level.");
+            FormatEx(buffer, maxLength, "%T", "Perk First Aid Feedback Name", client);
         case Perk_PrecisionHunter:
-            strcopy(buffer, maxLength, "Sniper kills on special infected return 1 round per level to the magazine.");
+            FormatEx(buffer, maxLength, "%T", "Perk Precision Hunter Name", client);
         case Perk_SupplyTraining:
-            strcopy(buffer, maxLength, "First supply use each chapter adds 2% to five stats, up to 10%.");
+            FormatEx(buffer, maxLength, "%T", "Perk Supply Conditioning Name", client);
         case Perk_LowHealthRecovery:
-            strcopy(buffer, maxLength, "Below 40 effective health, gain 10 temporary health per level every 30s.");
+            FormatEx(buffer, maxLength, "%T", "Perk Survival Rhythm Name", client);
         default:
-            strcopy(buffer, maxLength, "No description.");
+            FormatEx(buffer, maxLength, "%T", "Perk Unknown Name", client);
     }
 }
 
-void BSR_GetPerkShortEffect(PerkType perk, char[] buffer, int maxLength)
+void BSR_GetPerkDescription(int client, PerkType perk, char[] buffer, int maxLength)
 {
     switch (perk)
     {
         case Perk_Firepower:
-            strcopy(buffer, maxLength, "+10% direct damage/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Firepower Description",
+                client,
+                BSR_Percent(BSR_GetFirepowerPerLevel())
+            );
         case Perk_Toughness:
-            strcopy(buffer, maxLength, "-6% combat damage/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Toughness Description",
+                client,
+                BSR_Percent(BSR_GetToughnessPerLevel())
+            );
         case Perk_BossHealing:
-            strcopy(buffer, maxLength, "+10 real/+10 temp per Boss level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Boss Healing Description",
+                client,
+                BSR_GetBossHealRealPerLevel(),
+                BSR_GetBossHealTempPerLevel()
+            );
         case Perk_MeleeSpeed:
-            strcopy(buffer, maxLength, "+8% melee speed/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Melee Fury Description",
+                client,
+                BSR_Percent(BSR_GetMeleeSpeedPerLevel())
+            );
         case Perk_HealingBoost:
-            strcopy(buffer, maxLength, "+6% healing/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Healing Boost Description",
+                client,
+                BSR_Percent(BSR_GetHealingBoostPerLevel())
+            );
         case Perk_MedicalSupply:
-            strcopy(buffer, maxLength, "random medicine every 180s while empty");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Medical Supply Description",
+                client,
+                RoundToNearest(BSR_GetSupplyInterval())
+            );
         case Perk_ThrowableSupply:
-            strcopy(buffer, maxLength, "random throwable every 180s while empty");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Throwable Supply Description",
+                client,
+                RoundToNearest(BSR_GetSupplyInterval())
+            );
         case Perk_FateReroll:
-            strcopy(buffer, maxLength, "one free reroll per reward");
+            FormatEx(buffer, maxLength, "%T", "Perk Fate Reroll Description", client);
         case Perk_FieldRescue:
-            strcopy(buffer, maxLength, "+8% rescue speed/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Field Rescue Description",
+                client,
+                BSR_Percent(BSR_GetFieldRescuePerLevel())
+            );
         case Perk_AmmoReclamation:
-            strcopy(buffer, maxLength, "+2% max reserve per SI kill/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Ammo Reclamation Description",
+                client,
+                BSR_Percent(BSR_GetAmmoReclamationPerLevel())
+            );
         case Perk_FirstAidFeedback:
-            strcopy(buffer, maxLength, "+5 temp HP after healing a teammate/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk First Aid Feedback Description",
+                client,
+                BSR_GetFirstAidFeedbackPerLevel()
+            );
         case Perk_PrecisionHunter:
-            strcopy(buffer, maxLength, "+1 sniper round per SI kill/level");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Precision Hunter Description",
+                client,
+                BSR_GetPrecisionHunterRoundsPerLevel()
+            );
         case Perk_SupplyTraining:
-            strcopy(buffer, maxLength, "+2% five-stat stack once/chapter, max 10%");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Supply Conditioning Description",
+                client,
+                BSR_Percent(BSR_GetSupplyTrainingBonusPerStack()),
+                BSR_Percent(
+                    BSR_GetSupplyTrainingBonusPerStack()
+                    * float(BSR_GetSupplyTrainingMaxStacks())
+                )
+            );
         case Perk_LowHealthRecovery:
-            strcopy(buffer, maxLength, "+10 temp HP/level every 30s below 40 HP");
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Survival Rhythm Description",
+                client,
+                RoundToNearest(BSR_GetLowHealthThreshold()),
+                BSR_GetLowHealthTempPerLevel(),
+                RoundToNearest(BSR_GetLowHealthInterval())
+            );
         default:
-            strcopy(buffer, maxLength, "Unknown effect");
+            FormatEx(buffer, maxLength, "%T", "Perk Unknown Description", client);
+    }
+}
+
+void BSR_GetPerkShortEffect(int client, PerkType perk, char[] buffer, int maxLength)
+{
+    switch (perk)
+    {
+        case Perk_Firepower:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Firepower Short",
+                client,
+                BSR_Percent(BSR_GetFirepowerPerLevel())
+            );
+        case Perk_Toughness:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Toughness Short",
+                client,
+                BSR_Percent(BSR_GetToughnessPerLevel())
+            );
+        case Perk_BossHealing:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Boss Healing Short",
+                client,
+                BSR_GetBossHealRealPerLevel(),
+                BSR_GetBossHealTempPerLevel()
+            );
+        case Perk_MeleeSpeed:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Melee Fury Short",
+                client,
+                BSR_Percent(BSR_GetMeleeSpeedPerLevel())
+            );
+        case Perk_HealingBoost:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Healing Boost Short",
+                client,
+                BSR_Percent(BSR_GetHealingBoostPerLevel())
+            );
+        case Perk_MedicalSupply:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Medical Supply Short",
+                client,
+                RoundToNearest(BSR_GetSupplyInterval())
+            );
+        case Perk_ThrowableSupply:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Throwable Supply Short",
+                client,
+                RoundToNearest(BSR_GetSupplyInterval())
+            );
+        case Perk_FateReroll:
+            FormatEx(buffer, maxLength, "%T", "Perk Fate Reroll Short", client);
+        case Perk_FieldRescue:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Field Rescue Short",
+                client,
+                BSR_Percent(BSR_GetFieldRescuePerLevel())
+            );
+        case Perk_AmmoReclamation:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Ammo Reclamation Short",
+                client,
+                BSR_Percent(BSR_GetAmmoReclamationPerLevel())
+            );
+        case Perk_FirstAidFeedback:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk First Aid Feedback Short",
+                client,
+                BSR_GetFirstAidFeedbackPerLevel()
+            );
+        case Perk_PrecisionHunter:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Precision Hunter Short",
+                client,
+                BSR_GetPrecisionHunterRoundsPerLevel()
+            );
+        case Perk_SupplyTraining:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Supply Conditioning Short",
+                client,
+                BSR_Percent(BSR_GetSupplyTrainingBonusPerStack()),
+                BSR_Percent(
+                    BSR_GetSupplyTrainingBonusPerStack()
+                    * float(BSR_GetSupplyTrainingMaxStacks())
+                )
+            );
+        case Perk_LowHealthRecovery:
+            FormatEx(
+                buffer,
+                maxLength,
+                "%T",
+                "Perk Survival Rhythm Short",
+                client,
+                BSR_GetLowHealthTempPerLevel(),
+                RoundToNearest(BSR_GetLowHealthInterval()),
+                RoundToNearest(BSR_GetLowHealthThreshold())
+            );
+        default:
+            FormatEx(buffer, maxLength, "%T", "Perk Unknown Short", client);
     }
 }
 

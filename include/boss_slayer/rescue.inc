@@ -6,7 +6,7 @@
 float BSR_GetRescueSpeedBonus(int client)
 {
     int level = BSR_GetPerkLevel(client, Perk_FieldRescue);
-    return (float(level) * FIELD_RESCUE_SPEED_PER_LEVEL)
+    return (float(level) * BSR_GetFieldRescuePerLevel())
         + BSR_GetSupplyTrainingBonus(client);
 }
 

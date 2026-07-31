@@ -144,7 +144,9 @@ void BSR_ShowPerkMenu(int client)
 
     Menu menu = new Menu(BSR_MenuHandler_Perk);
     menu.SetTitle(
-        "Boss Slayer - Choose one perk\nPending rewards: %d\nPress 9 to choose later",
+        "%T",
+        "Perk Menu Title",
+        client,
         pendingRewards
     );
     menu.Pagination = MENU_NO_PAGINATION;
@@ -163,13 +165,15 @@ void BSR_ShowPerkMenu(int client)
         char displayText[160];
 
         IntToString(view_as<int>(perk), itemInfo, sizeof(itemInfo));
-        BSR_GetPerkName(perk, perkName, sizeof(perkName));
-        BSR_GetPerkShortEffect(perk, shortEffect, sizeof(shortEffect));
+        BSR_GetPerkName(client, perk, perkName, sizeof(perkName));
+        BSR_GetPerkShortEffect(client, perk, shortEffect, sizeof(shortEffect));
 
         Format(
             displayText,
             sizeof(displayText),
-            "%s Lv.%d -> Lv.%d (%s)",
+            "%T",
+            "Perk Menu Item",
+            client,
             perkName,
             currentLevel,
             currentLevel + 1,
@@ -182,17 +186,24 @@ void BSR_ShowPerkMenu(int client)
 
     if (BSR_GetPerkLevel(client, Perk_FateReroll) > 0 && !g_RerollUsed[client])
     {
-        menu.AddItem("reroll", "Reroll these choices (free, once per reward)");
+        char rerollText[128];
+        FormatEx(rerollText, sizeof(rerollText), "%T", "Menu Reroll", client);
+        menu.AddItem("reroll", rerollText);
         displayedItems++;
     }
 
     while (displayedItems < 8)
     {
-        menu.AddItem("spacer", "", ITEMDRAW_SPACER);
+        // Hidden selectable entries make every unlisted number choose later.
+        menu.AddItem("close", "", ITEMDRAW_NOTEXT);
         displayedItems++;
     }
 
-    menu.AddItem("close", "Choose later / Close menu");
+    char closeText[64];
+    FormatEx(closeText, sizeof(closeText), "%T", "Menu Choose Later", client);
+    menu.AddItem("close", closeText);
+    // Slot 10 (the 0 key) is also a hidden choose-later action.
+    menu.AddItem("close", "", ITEMDRAW_NOTEXT);
 
     if (menu.Display(client, MENU_TIME_FOREVER))
     {
@@ -201,7 +212,7 @@ void BSR_ShowPerkMenu(int client)
     else
     {
         delete menu;
-        PrintToChat(client, "\x04[Boss Slayer]\x01 The menu could not open. Type !perk to try again.");
+        BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Perk Menu Open Failed");
     }
 }
 
@@ -224,7 +235,7 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
         int pendingRewards = BSR_GetPendingRewards(client);
         if (pendingRewards <= 0)
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 This reward is no longer available.");
+            BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Reward No Longer Available");
             return 0;
         }
 
@@ -239,20 +250,20 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
         {
             if (BSR_GetPerkLevel(client, Perk_FateReroll) <= 0 || g_RerollUsed[client])
             {
-                PrintToChat(client, "\x04[Boss Slayer]\x01 This reward has already been rerolled.");
+                BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Reroll Already Used");
                 return 0;
             }
 
             g_RerollUsed[client] = true;
             BSR_GeneratePerkChoices(client, true);
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Fate Reroll replaced the current choices.");
+            BSR_PrintChat(client, BSR_Message_Normal, "%t", "Reroll Completed");
             BSR_QueueNextPerkMenu(client);
             return 0;
         }
 
         if (StrEqual(itemInfo, "close"))
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk when you are ready.");
+            BSR_PrintChat(client, BSR_Message_Normal, "%t", "Reward Saved");
             return 0;
         }
 
@@ -270,32 +281,34 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
         if (currentLevel >= maxLevel)
         {
             g_CurrentChoiceCount[client] = 0;
-            PrintToChat(client, "\x04[Boss Slayer]\x01 That perk is already at maximum level.");
+            BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Perk Already Maxed");
             BSR_QueueNextPerkMenu(client);
             return 0;
         }
 
         if (!BSR_SetPerkLevel(client, perk, currentLevel + 1))
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Your SteamID is not ready. The reward was not spent.");
+            BSR_PrintChat(client, BSR_Message_Minimal, "%t", "SteamID Not Ready");
             return 0;
         }
 
         if (!BSR_SetPendingRewards(client, pendingRewards - 1))
         {
             BSR_SetPerkLevel(client, perk, currentLevel);
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Could not spend the reward. Please try again.");
+            BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Reward Spend Failed");
             return 0;
         }
 
         char perkName[32];
         char description[128];
-        BSR_GetPerkName(perk, perkName, sizeof(perkName));
-        BSR_GetPerkDescription(perk, description, sizeof(description));
+        BSR_GetPerkName(client, perk, perkName, sizeof(perkName));
+        BSR_GetPerkDescription(client, perk, description, sizeof(description));
 
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Selected \x03%s Lv.%d\x01. %s",
+            BSR_Message_Minimal,
+            "%t",
+            "Perk Selected",
             perkName,
             currentLevel + 1,
             description
@@ -306,7 +319,6 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
 
         if (remainingRewards > 0)
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Remaining rewards: %d", remainingRewards);
             BSR_QueueNextPerkMenu(client);
         }
     }
@@ -320,7 +332,7 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
 
             if (BSR_IsHumanSurvivor(client) && BSR_GetPendingRewards(client) > 0)
             {
-                PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk when you are ready.");
+                BSR_PrintChat(client, BSR_Message_Normal, "%t", "Reward Saved");
             }
         }
     }

@@ -38,7 +38,11 @@ void BSR_UpdateLowHealthRecovery(int client, float now)
     int level = BSR_GetPerkLevel(client, Perk_LowHealthRecovery);
     float effectiveHealth = float(GetClientHealth(client)) + BSR_GetTemporaryHealth(client);
 
-    if (level <= 0 || !BSR_CanReceiveHealth(client) || effectiveHealth >= LOW_HEALTH_THRESHOLD)
+    if (
+        level <= 0
+        || !BSR_CanReceiveHealth(client)
+        || effectiveHealth >= BSR_GetLowHealthThreshold()
+    )
     {
         g_LowHealthNextTick[client] = 0.0;
         return;
@@ -46,7 +50,7 @@ void BSR_UpdateLowHealthRecovery(int client, float now)
 
     if (g_LowHealthNextTick[client] <= 0.0)
     {
-        g_LowHealthNextTick[client] = now + LOW_HEALTH_INTERVAL_SECONDS;
+        g_LowHealthNextTick[client] = now + BSR_GetLowHealthInterval();
         return;
     }
 
@@ -55,14 +59,16 @@ void BSR_UpdateLowHealthRecovery(int client, float now)
         return;
     }
 
-    g_LowHealthNextTick[client] = now + LOW_HEALTH_INTERVAL_SECONDS;
-    int amount = level * LOW_HEALTH_TEMP_PER_LEVEL;
+    g_LowHealthNextTick[client] = now + BSR_GetLowHealthInterval();
+    int amount = level * BSR_GetLowHealthTempPerLevel();
 
     if (BSR_AddTemporaryHealth(client, amount) > 0)
     {
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Survival Rhythm restored up to %d temporary health.",
+            BSR_Message_Detailed,
+            "%t",
+            "Survival Rhythm Triggered",
             amount
         );
     }
@@ -82,7 +88,7 @@ void BSR_UpdateMedicalSupply(int client, float now)
         return;
     }
 
-    if ((now - g_MedicalEmptySince[client]) < SUPPLY_INTERVAL_SECONDS)
+    if ((now - g_MedicalEmptySince[client]) < BSR_GetSupplyInterval())
     {
         return;
     }
@@ -91,9 +97,11 @@ void BSR_UpdateMedicalSupply(int client, float now)
 
     if (BSR_GiveRandomMedicalItem(client))
     {
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Medical Supply granted a random medical item."
+            BSR_Message_Normal,
+            "%t",
+            "Medical Supply Granted"
         );
     }
 }
@@ -112,7 +120,7 @@ void BSR_UpdateThrowableSupply(int client, float now)
         return;
     }
 
-    if ((now - g_ThrowableEmptySince[client]) < SUPPLY_INTERVAL_SECONDS)
+    if ((now - g_ThrowableEmptySince[client]) < BSR_GetSupplyInterval())
     {
         return;
     }
@@ -121,9 +129,11 @@ void BSR_UpdateThrowableSupply(int client, float now)
 
     if (BSR_GiveRandomThrowable(client))
     {
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Throwable Supply granted a random throwable."
+            BSR_Message_Normal,
+            "%t",
+            "Throwable Supply Granted"
         );
     }
 }
@@ -205,7 +215,8 @@ void BSR_RecordSupplyUse(int client)
     }
 
     int stacks = BSR_GetSupplyTrainingStacks(client);
-    if (stacks >= SUPPLY_TRAINING_MAX_STACKS)
+    int maxStacks = BSR_GetSupplyTrainingMaxStacks();
+    if (stacks >= maxStacks)
     {
         return;
     }
@@ -231,12 +242,14 @@ void BSR_RecordSupplyUse(int client)
 
     g_SupplyTrainingChapterBySteamId.SetValue(steamId, g_CurrentChapterSerial);
 
-    PrintToChat(
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 Supply Conditioning: %d/%d stacks, five stats +%d%%.",
+        BSR_Message_Normal,
+        "%t",
+        "Supply Conditioning Stack",
         stacks + 1,
-        SUPPLY_TRAINING_MAX_STACKS,
-        (stacks + 1) * 2
+        maxStacks,
+        BSR_Percent(float(stacks + 1) * BSR_GetSupplyTrainingBonusPerStack())
     );
 }
 
@@ -325,7 +338,9 @@ void BSR_ApplyAmmoReclamation(int client)
     }
 
     int ammoType = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
-    int amount = RoundToCeil(float(maximum) * float(level) * AMMO_RECLAIM_PERCENT_PER_LEVEL);
+    int amount = RoundToCeil(
+        float(maximum) * float(level) * BSR_GetAmmoReclamationPerLevel()
+    );
 
     if (ammoType >= 0 && amount > 0)
     {
@@ -333,28 +348,56 @@ void BSR_ApplyAmmoReclamation(int client)
     }
 }
 
-bool BSR_IsSniperClassname(const char[] classname)
+int BSR_GetPrimaryClipMaximum(const char[] classname)
 {
-    return StrEqual(classname, "weapon_hunting_rifle", false)
-        || StrEqual(classname, "weapon_sniper_military", false)
-        || StrEqual(classname, "weapon_sniper_scout", false)
-        || StrEqual(classname, "weapon_sniper_awp", false);
-}
+    if (
+        StrEqual(classname, "weapon_smg", false)
+        || StrEqual(classname, "weapon_smg_silenced", false)
+        || StrEqual(classname, "weapon_smg_mp5", false)
+    )
+    {
+        return 50;
+    }
 
-bool BSR_IsSniperKillWeapon(const char[] weaponName)
-{
-    return StrEqual(weaponName, "hunting_rifle", false)
-        || StrEqual(weaponName, "weapon_hunting_rifle", false)
-        || StrEqual(weaponName, "sniper_military", false)
-        || StrEqual(weaponName, "weapon_sniper_military", false)
-        || StrEqual(weaponName, "sniper_scout", false)
-        || StrEqual(weaponName, "weapon_sniper_scout", false)
-        || StrEqual(weaponName, "sniper_awp", false)
-        || StrEqual(weaponName, "weapon_sniper_awp", false);
-}
+    if (
+        StrEqual(classname, "weapon_pumpshotgun", false)
+        || StrEqual(classname, "weapon_shotgun_chrome", false)
+    )
+    {
+        return 8;
+    }
 
-int BSR_GetSniperClipMaximum(const char[] classname)
-{
+    if (
+        StrEqual(classname, "weapon_autoshotgun", false)
+        || StrEqual(classname, "weapon_shotgun_spas", false)
+    )
+    {
+        return 10;
+    }
+
+    if (
+        StrEqual(classname, "weapon_rifle", false)
+        || StrEqual(classname, "weapon_rifle_sg552", false)
+    )
+    {
+        return 50;
+    }
+
+    if (StrEqual(classname, "weapon_rifle_ak47", false))
+    {
+        return 40;
+    }
+
+    if (StrEqual(classname, "weapon_rifle_desert", false))
+    {
+        return 60;
+    }
+
+    if (StrEqual(classname, "weapon_rifle_m60", false))
+    {
+        return 150;
+    }
+
     if (StrEqual(classname, "weapon_hunting_rifle", false))
     {
         return 15;
@@ -378,15 +421,43 @@ int BSR_GetSniperClipMaximum(const char[] classname)
     return 0;
 }
 
+bool BSR_KillWeaponMatchesPrimary(
+    const char[] killWeapon,
+    const char[] primaryClassname
+)
+{
+    char normalizedKillWeapon[40];
+
+    if (StrContains(killWeapon, "weapon_", false) == 0)
+    {
+        strcopy(
+            normalizedKillWeapon,
+            sizeof(normalizedKillWeapon),
+            killWeapon
+        );
+    }
+    else
+    {
+        FormatEx(
+            normalizedKillWeapon,
+            sizeof(normalizedKillWeapon),
+            "weapon_%s",
+            killWeapon
+        );
+    }
+
+    return StrEqual(normalizedKillWeapon, primaryClassname, false);
+}
+
 void BSR_ApplyPrecisionHunter(int client, const char[] killWeapon)
 {
     int level = BSR_GetPerkLevel(client, Perk_PrecisionHunter);
-    if (level <= 0 || !BSR_IsSniperKillWeapon(killWeapon))
+    if (level <= 0)
     {
         return;
     }
 
-    int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+    int weapon = GetPlayerWeaponSlot(client, 0);
     if (
         weapon <= MaxClients
         || !IsValidEntity(weapon)
@@ -399,14 +470,17 @@ void BSR_ApplyPrecisionHunter(int client, const char[] killWeapon)
     char classname[40];
     GetEntityClassname(weapon, classname, sizeof(classname));
 
-    if (!BSR_IsSniperClassname(classname))
+    int maximum = BSR_GetPrimaryClipMaximum(classname);
+    if (
+        maximum <= 0
+        || !BSR_KillWeaponMatchesPrimary(killWeapon, classname)
+    )
     {
         return;
     }
 
-    int maximum = BSR_GetSniperClipMaximum(classname);
     int current = GetEntProp(weapon, Prop_Send, "m_iClip1");
-    int updated = current + (level * PRECISION_HUNTER_ROUNDS_PER_LEVEL);
+    int updated = current + (level * BSR_GetPrecisionHunterRoundsPerLevel());
 
     if (updated > maximum)
     {

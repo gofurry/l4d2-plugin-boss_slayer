@@ -9,42 +9,74 @@ void BSR_RegisterCommands()
     RegConsoleCmd("sm_perk", Command_OpenPerkMenu, "Open an unspent perk choice.");
     RegConsoleCmd("sm_perks", Command_ShowPerks, "Show your current Boss Slayer build.");
 
-    // Development commands. Remove or restrict these before public release.
-    RegConsoleCmd("sm_bsr_testreward", Command_TestReward, "Give yourself one test reward.");
-    RegConsoleCmd(
+    // Development commands require both ADMFLAG_CHEATS and the debug ConVar.
+    RegAdminCmd(
+        "sm_bsr_testreward",
+        Command_TestReward,
+        ADMFLAG_CHEATS,
+        "Grant test rewards. Usage: !bsr_testreward [1-100]"
+    );
+    RegAdminCmd(
         "sm_bsr_testsikills",
         Command_TestSpecialKills,
+        ADMFLAG_CHEATS,
         "Add test special-infected kills. Usage: !bsr_testsikills 30"
     );
-    RegConsoleCmd(
+    RegAdminCmd(
         "sm_bsr_testcommonkills",
         Command_TestCommonKills,
+        ADMFLAG_CHEATS,
         "Add test common-infected kills. Usage: !bsr_testcommonkills 500"
     );
-    RegConsoleCmd(
+    RegAdminCmd(
         "sm_bsr_testmaxperks",
         Command_TestMaxPerks,
+        ADMFLAG_CHEATS,
         "Max every perk and grant one exchange reward."
     );
-    RegConsoleCmd(
+    RegAdminCmd(
         "sm_bsr_testperk",
         Command_TestPerk,
+        ADMFLAG_CHEATS,
         "Set one perk level. Usage: !bsr_testperk [0-13] [level]"
     );
-    RegConsoleCmd(
+    RegAdminCmd(
         "sm_bsr_testsupplystacks",
         Command_TestSupplyStacks,
+        ADMFLAG_CHEATS,
         "Set Supply Conditioning stacks. Usage: !bsr_testsupplystacks [0-5]"
     );
-    RegConsoleCmd("sm_bsr_resetme", Command_ResetMe, "Reset your Boss Slayer data.");
+    RegAdminCmd(
+        "sm_bsr_resetme",
+        Command_ResetMe,
+        ADMFLAG_CHEATS,
+        "Reset your own Boss Slayer data."
+    );
     RegAdminCmd("sm_bsr_resetall", Command_ResetAll, ADMFLAG_ROOT, "Reset all Boss Slayer data.");
+}
+
+bool BSR_CanUseSelfDebugCommand(int client, const char[] commandName)
+{
+    if (!BSR_DebugCommandsEnabled())
+    {
+        BSR_ReplyTranslated(client, "%t", "Debug Commands Disabled");
+        return false;
+    }
+
+    if (!BSR_IsHumanSurvivor(client))
+    {
+        BSR_ReplyTranslated(client, "%t", "Command Human Survivor", commandName);
+        return false;
+    }
+
+    return true;
 }
 
 public Action Command_Status(int client, int args)
 {
     if (!BSR_IsHumanSurvivor(client))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr as a human survivor.");
+        BSR_ReplyTranslated(client, "%t", "Command Human Survivor", "!bsr");
         return Plugin_Handled;
     }
 
@@ -54,28 +86,36 @@ public Action Command_Status(int client, int args)
     int pendingRewards = BSR_GetPendingRewards(client);
     int totalPerkLevels = BSR_GetTotalPerkLevels(client);
 
-    PrintToChat(
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 Boss kills: %d | Pending rewards: %d | Perk levels: %d",
+        BSR_Message_Minimal,
+        "%t",
+        "Status Summary",
         bossKills,
         pendingRewards,
         totalPerkLevels
     );
 
-    PrintToChat(
+    int specialThreshold = BSR_GetSpecialKillsPerReward();
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 Special infected kills: %d | Next reward: %d/%d",
+        BSR_Message_Minimal,
+        "%t",
+        "Status Special Kills",
         specialKills,
-        specialKills % SPECIAL_KILLS_PER_REWARD,
-        SPECIAL_KILLS_PER_REWARD
+        specialKills % specialThreshold,
+        specialThreshold
     );
 
-    PrintToChat(
+    int commonThreshold = BSR_GetCommonKillsPerReward();
+    BSR_PrintChat(
         client,
-        "\x04[Boss Slayer]\x01 Common infected kills: %d | Next reward: %d/%d",
+        BSR_Message_Minimal,
+        "%t",
+        "Status Common Kills",
         commonKills,
-        commonKills % COMMON_KILLS_PER_REWARD,
-        COMMON_KILLS_PER_REWARD
+        commonKills % commonThreshold,
+        commonThreshold
     );
 
     return Plugin_Handled;
@@ -85,19 +125,19 @@ public Action Command_OpenPerkMenu(int client, int args)
 {
     if (!BSR_IsHumanSurvivor(client))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !perk as a human survivor.");
+        BSR_ReplyTranslated(client, "%t", "Command Human Survivor", "!perk");
         return Plugin_Handled;
     }
 
     if (!IsPlayerAlive(client))
     {
-        PrintToChat(client, "\x04[Boss Slayer]\x01 You must be alive to choose a perk.");
+        BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Must Be Alive");
         return Plugin_Handled;
     }
 
     if (BSR_GetPendingRewards(client) <= 0)
     {
-        PrintToChat(client, "\x04[Boss Slayer]\x01 You have no pending rewards.");
+        BSR_PrintChat(client, BSR_Message_Minimal, "%t", "No Pending Rewards");
         return Plugin_Handled;
     }
 
@@ -109,66 +149,205 @@ public Action Command_ShowPerks(int client, int args)
 {
     if (!BSR_IsHumanSurvivor(client))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !perks as a human survivor.");
+        BSR_ReplyTranslated(client, "%t", "Command Human Survivor", "!perks");
         return Plugin_Handled;
     }
 
-    PrintToChat(client, "\x04[Boss Slayer]\x01 Current build:");
+    BSR_ShowBuildMenu(client);
+    return Plugin_Handled;
+}
 
-    for (int perkIndex = 0; perkIndex < view_as<int>(Perk_Count); perkIndex++)
+void BSR_ShowBuildMenu(int client, int page = 0)
+{
+    const int perksPerPage = 7;
+    int perkCount = view_as<int>(Perk_Count);
+    int pageCount = (perkCount + perksPerPage - 1) / perksPerPage;
+    int lastPage = pageCount - 1;
+
+    if (page < 0)
+    {
+        page = 0;
+    }
+    else if (page > lastPage)
+    {
+        page = lastPage;
+    }
+
+    Menu menu = new Menu(BSR_MenuHandler_Build);
+    menu.SetTitle(
+        "%T",
+        "Build Menu Title",
+        client,
+        BSR_GetTotalPerkLevels(client),
+        BSR_GetPendingRewards(client),
+        BSR_GetSupplyTrainingStacks(client),
+        BSR_GetSupplyTrainingMaxStacks()
+    );
+    menu.Pagination = MENU_NO_PAGINATION;
+    menu.ExitButton = false;
+
+    int firstPerk = page * perksPerPage;
+    int lastPerk = firstPerk + perksPerPage;
+
+    if (lastPerk > view_as<int>(Perk_Count))
+    {
+        lastPerk = view_as<int>(Perk_Count);
+    }
+
+    for (int perkIndex = firstPerk; perkIndex < lastPerk; perkIndex++)
     {
         PerkType perk = view_as<PerkType>(perkIndex);
         int level = BSR_GetPerkLevel(client, perk);
         int maxLevel = BSR_GetPerkMaxLevel(perk);
 
         char perkName[32];
-        char description[96];
-        BSR_GetPerkName(perk, perkName, sizeof(perkName));
-        BSR_GetPerkDescription(perk, description, sizeof(description));
+        char shortEffect[96];
+        char displayText[160];
+        BSR_GetPerkName(client, perk, perkName, sizeof(perkName));
+        BSR_GetPerkShortEffect(client, perk, shortEffect, sizeof(shortEffect));
 
-        PrintToChat(
+        FormatEx(
+            displayText,
+            sizeof(displayText),
+            "%T",
+            "Build Menu Item",
             client,
-            "\x03%s\x01: Lv.%d/%d - %s",
             perkName,
             level,
             maxLevel,
-            description
+            shortEffect
         );
+
+        // Perk rows are informational. Pressing their number closes the menu.
+        menu.AddItem("close", displayText);
     }
 
-    PrintToChat(
-        client,
-        "\x04[Boss Slayer]\x01 Supply Conditioning stacks: %d/%d.",
-        BSR_GetSupplyTrainingStacks(client),
-        SUPPLY_TRAINING_MAX_STACKS
-    );
-
-    int pendingRewards = BSR_GetPendingRewards(client);
-    if (pendingRewards > 0)
+    int displayedPerks = lastPerk - firstPerk;
+    while (displayedPerks < perksPerPage)
     {
-        PrintToChat(
-            client,
-            "\x04[Boss Slayer]\x01 Pending rewards: %d. Type !perk to choose.",
-            pendingRewards
-        );
+        menu.AddItem("close", "", ITEMDRAW_NOTEXT);
+        displayedPerks++;
     }
 
-    return Plugin_Handled;
+    char navigationText[64];
+    char navigationInfo[16];
+
+    if (page > 0)
+    {
+        FormatEx(
+            navigationText,
+            sizeof(navigationText),
+            "%T",
+            "Build Menu Previous Page",
+            client
+        );
+        FormatEx(navigationInfo, sizeof(navigationInfo), "page:%d", page - 1);
+        menu.AddItem(navigationInfo, navigationText, ITEMDRAW_CONTROL);
+    }
+    else
+    {
+        // Slot 8 closes on the first page but is not shown.
+        menu.AddItem("close", "", ITEMDRAW_NOTEXT);
+    }
+
+    if (page < lastPage)
+    {
+        FormatEx(
+            navigationText,
+            sizeof(navigationText),
+            "%T",
+            "Build Menu Next Page",
+            client
+        );
+        FormatEx(navigationInfo, sizeof(navigationInfo), "page:%d", page + 1);
+        menu.AddItem(navigationInfo, navigationText, ITEMDRAW_CONTROL);
+    }
+    else
+    {
+        // Slot 9 closes on the final page but is not shown.
+        menu.AddItem("close", "", ITEMDRAW_NOTEXT);
+    }
+
+    // The 0 key also closes without drawing the default SourceMod exit item.
+    menu.AddItem("close", "", ITEMDRAW_NOTEXT);
+
+    if (!menu.Display(client, MENU_TIME_FOREVER))
+    {
+        delete menu;
+        BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Build Menu Open Failed");
+    }
+}
+
+public int BSR_MenuHandler_Build(Menu menu, MenuAction action, int param1, int param2)
+{
+    if (action == MenuAction_Select)
+    {
+        int client = param1;
+
+        if (!BSR_IsHumanSurvivor(client))
+        {
+            return 0;
+        }
+
+        char itemInfo[16];
+        if (!menu.GetItem(param2, itemInfo, sizeof(itemInfo)))
+        {
+            return 0;
+        }
+
+        if (StrContains(itemInfo, "page:", false) == 0)
+        {
+            BSR_ShowBuildMenu(client, StringToInt(itemInfo[5]));
+        }
+    }
+    else if (action == MenuAction_End)
+    {
+        delete menu;
+    }
+
+    return 0;
 }
 
 public Action Command_TestReward(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testreward"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testreward in chat.");
         return Plugin_Handled;
     }
 
-    if (BSR_AddPendingRewards(client, 1))
+    int amount = 1;
+
+    if (args >= 1)
     {
-        PrintToChat(
+        char amountText[16];
+        GetCmdArg(1, amountText, sizeof(amountText));
+        amount = StringToInt(amountText);
+    }
+
+    if (amount < 1)
+    {
+        amount = 1;
+    }
+    else if (amount > 100)
+    {
+        amount = 100;
+    }
+
+    if (BSR_AddPendingRewards(client, amount))
+    {
+        LogAction(
             client,
-            "\x04[Boss Slayer]\x01 Test reward granted. Pending rewards: %d",
+            -1,
+            "\"%L\" granted self %d Boss Slayer test reward(s).",
+            client,
+            amount
+        );
+        BSR_PrintChat(
+            client,
+            BSR_Message_Minimal,
+            "%t",
+            "Test Reward Granted",
+            amount,
             BSR_GetPendingRewards(client)
         );
         BSR_ShowPerkMenu(client);
@@ -179,9 +358,8 @@ public Action Command_TestReward(int client, int args)
 
 public Action Command_TestSpecialKills(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testsikills"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testsikills [amount] in chat.");
         return Plugin_Handled;
     }
 
@@ -208,9 +386,19 @@ public Action Command_TestSpecialKills(int client, int args)
         BSR_RecordSpecialInfectedKill(client);
     }
 
-    PrintToChat(
+    LogAction(
         client,
-        "\x04[Boss Slayer]\x01 Test SI kills added: %d. Total: %d.",
+        -1,
+        "\"%L\" added %d Boss Slayer test special-infected kill(s) to self.",
+        client,
+        amount
+    );
+
+    BSR_PrintChat(
+        client,
+        BSR_Message_Minimal,
+        "%t",
+        "Test Special Kills Added",
         amount,
         BSR_GetSpecialKills(client)
     );
@@ -220,9 +408,8 @@ public Action Command_TestSpecialKills(int client, int args)
 
 public Action Command_TestCommonKills(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testcommonkills"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testcommonkills [amount] in chat.");
         return Plugin_Handled;
     }
 
@@ -249,9 +436,19 @@ public Action Command_TestCommonKills(int client, int args)
         BSR_RecordCommonInfectedKill(client);
     }
 
-    PrintToChat(
+    LogAction(
         client,
-        "\x04[Boss Slayer]\x01 Test common kills added: %d. Total: %d.",
+        -1,
+        "\"%L\" added %d Boss Slayer test common-infected kill(s) to self.",
+        client,
+        amount
+    );
+
+    BSR_PrintChat(
+        client,
+        BSR_Message_Minimal,
+        "%t",
+        "Test Common Kills Added",
         amount,
         BSR_GetCommonKills(client)
     );
@@ -261,9 +458,8 @@ public Action Command_TestCommonKills(int client, int args)
 
 public Action Command_TestMaxPerks(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testmaxperks"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testmaxperks in chat.");
         return Plugin_Handled;
     }
 
@@ -280,7 +476,13 @@ public Action Command_TestMaxPerks(int client, int args)
     }
 
     BSR_AddPendingRewards(client, 1);
-    PrintToChat(client, "\x04[Boss Slayer]\x01 All perks maxed; one exchange reward granted.");
+    LogAction(
+        client,
+        -1,
+        "\"%L\" maxed all Boss Slayer perks and granted self one exchange reward.",
+        client
+    );
+    BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Test Max Perks Granted");
     BSR_ShowPerkMenu(client);
 
     return Plugin_Handled;
@@ -288,17 +490,18 @@ public Action Command_TestMaxPerks(int client, int args)
 
 public Action Command_TestPerk(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testperk"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testperk [0-13] [level] in chat.");
         return Plugin_Handled;
     }
 
     if (args < 2)
     {
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 IDs 0-13: Firepower, Toughness, Boss Healing, Melee Fury, Healing Boost, Medical Supply, Throwable Supply, Fate Reroll, Field Rescue, Ammo Reclamation, First Aid Feedback, Sniper Rebate, Supply Conditioning, Survival Rhythm."
+            BSR_Message_Minimal,
+            "%t",
+            "Test Perk IDs"
         );
         return Plugin_Handled;
     }
@@ -311,7 +514,7 @@ public Action Command_TestPerk(int client, int args)
     int perkIndex = StringToInt(perkText);
     if (perkIndex < 0 || perkIndex >= view_as<int>(Perk_Count))
     {
-        PrintToChat(client, "\x04[Boss Slayer]\x01 Invalid perk ID. Use 0 through 13.");
+        BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Invalid Perk ID");
         return Plugin_Handled;
     }
 
@@ -330,18 +533,34 @@ public Action Command_TestPerk(int client, int args)
 
     BSR_SetPerkLevel(client, perk, level);
 
+    LogAction(
+        client,
+        -1,
+        "\"%L\" set self Boss Slayer perk %d to level %d.",
+        client,
+        perkIndex,
+        level
+    );
+
     char perkName[32];
-    BSR_GetPerkName(perk, perkName, sizeof(perkName));
-    PrintToChat(client, "\x04[Boss Slayer]\x01 %s set to Lv.%d/%d.", perkName, level, maxLevel);
+    BSR_GetPerkName(client, perk, perkName, sizeof(perkName));
+    BSR_PrintChat(
+        client,
+        BSR_Message_Minimal,
+        "%t",
+        "Test Perk Set",
+        perkName,
+        level,
+        maxLevel
+    );
 
     return Plugin_Handled;
 }
 
 public Action Command_TestSupplyStacks(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_testsupplystacks"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_testsupplystacks [0-5] in chat.");
         return Plugin_Handled;
     }
 
@@ -358,21 +577,34 @@ public Action Command_TestSupplyStacks(int client, int args)
     {
         stacks = 0;
     }
-    else if (stacks > SUPPLY_TRAINING_MAX_STACKS)
+    else if (stacks > BSR_GetSupplyTrainingMaxStacks())
     {
-        stacks = SUPPLY_TRAINING_MAX_STACKS;
+        stacks = BSR_GetSupplyTrainingMaxStacks();
     }
 
     BSR_SetSupplyTrainingStacks(client, stacks);
-    PrintToChat(client, "\x04[Boss Slayer]\x01 Supply Conditioning stacks set to %d/5.", stacks);
+    LogAction(
+        client,
+        -1,
+        "\"%L\" set self Boss Slayer Supply Conditioning stacks to %d.",
+        client,
+        stacks
+    );
+    BSR_PrintChat(
+        client,
+        BSR_Message_Minimal,
+        "%t",
+        "Test Supply Stacks Set",
+        stacks,
+        BSR_GetSupplyTrainingMaxStacks()
+    );
     return Plugin_Handled;
 }
 
 public Action Command_ResetMe(int client, int args)
 {
-    if (!BSR_IsHumanSurvivor(client))
+    if (!BSR_CanUseSelfDebugCommand(client, "!bsr_resetme"))
     {
-        ReplyToCommand(client, "[Boss Slayer] Use !bsr_resetme in chat.");
         return Plugin_Handled;
     }
 
@@ -385,7 +617,9 @@ public Action Command_ResetMe(int client, int args)
         CancelClientMenu(client);
     }
 
-    PrintToChat(client, "\x04[Boss Slayer]\x01 Your build has been manually reset.");
+    LogAction(client, -1, "\"%L\" reset their own Boss Slayer build.", client);
+
+    BSR_PrintChat(client, BSR_Message_Minimal, "%t", "Build Manually Reset");
     return Plugin_Handled;
 }
 
@@ -394,10 +628,14 @@ public Action Command_ResetAll(int client, int args)
     BSR_ResetAllPlayerData();
     BSR_CancelAllPerkMenus();
 
-    PrintToChatAll(
-        "\x04[Boss Slayer]\x01 All builds were reset by an administrator."
+    LogAction(client, -1, "\"%L\" reset all Boss Slayer builds.", client);
+
+    BSR_PrintChatAll(
+        BSR_Message_Minimal,
+        "%t",
+        "Builds Admin Reset"
     );
-    ReplyToCommand(client, "[Boss Slayer] All SteamID player data has been reset.");
+    BSR_ReplyTranslated(client, "%t", "Admin Reset Confirmed");
 
     return Plugin_Handled;
 }

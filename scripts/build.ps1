@@ -13,6 +13,7 @@ $sourceFile = Join-Path $projectRoot "src\boss_slayer.sp"
 $projectInclude = Join-Path $projectRoot "include"
 $distDirectory = Join-Path $projectRoot "dist"
 $outputFile = Join-Path $distDirectory "boss_slayer.smx"
+$translationValidator = Join-Path $PSScriptRoot "validate-translations.ps1"
 
 if (-not (Test-Path -LiteralPath $CompilerPath -PathType Leaf)) {
     throw "SourcePawn compiler not found: $CompilerPath"
@@ -27,6 +28,8 @@ if (-not (Test-Path -LiteralPath $sourceFile -PathType Leaf)) {
 }
 
 New-Item -ItemType Directory -Path $distDirectory -Force | Out-Null
+
+& $translationValidator
 
 Write-Host "Building Boss Slayer..."
 

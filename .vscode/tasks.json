@@ -30,6 +30,33 @@
                 "${workspaceFolder}/scripts/deploy.ps1"
             ],
             "problemMatcher": []
+        },
+        {
+            "label": "Boss Slayer: Build Release Package",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/package.ps1"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Boss Slayer: Open Translation Audit",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/generate-translation-audit.ps1",
+                "-Open"
+            ],
+            "problemMatcher": []
         }
     ]
 }

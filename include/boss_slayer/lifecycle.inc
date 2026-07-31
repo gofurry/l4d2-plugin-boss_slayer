@@ -62,6 +62,8 @@ public void OnClientPutInServer(int client)
 
 public void OnMapStart()
 {
+    BSR_RefreshGameMode();
+
     // Menus and encounter participation do not survive a map change.
     for (int client = 1; client <= MaxClients; client++)
     {
@@ -75,20 +77,60 @@ public void OnMapStart()
     currentMap[0] = 0;
     GetCurrentMap(currentMap, sizeof(currentMap));
 
+    if (!BSR_IsSupportedGameMode())
+    {
+        BSR_ResetAllPlayerData();
+        g_CurrentMapRewardSerial = 0;
+        g_CurrentChapterSerial = 1;
+        g_CurrentMapEntryRewardEnabled = false;
+        g_MapTransitionArmed = false;
+        g_SuppressNextMapReward = false;
+        g_RetryingChapter = false;
+
+        if (currentMap[0] != 0)
+        {
+            strcopy(g_LastMapName, sizeof(g_LastMapName), currentMap);
+        }
+
+        return;
+    }
+
     bool mapChanged =
         g_LastMapName[0] != 0
         && currentMap[0] != 0
         && !StrEqual(g_LastMapName, currentMap, false);
 
+    bool hasPreviousMap = g_LastMapName[0] != 0;
+    bool normalChapterTransition = g_MapTransitionArmed;
+    bool startingAfterFinale = g_SuppressNextMapReward;
     bool retryingCurrentChapter = g_RetryingChapter && !mapChanged;
+    bool startingNewCampaign =
+        hasPreviousMap
+        && !normalChapterTransition
+        && !retryingCurrentChapter
+        && !startingAfterFinale;
 
-    if (!retryingCurrentChapter)
+    if (startingNewCampaign || startingAfterFinale)
+    {
+        // Any map start that was not armed by map_transition is a new run.
+        // This prevents an abandoned campaign from leaking its in-memory
+        // build into a newly started first map, even if the map name matches.
+        if (startingNewCampaign)
+        {
+            BSR_ResetAllPlayerData();
+        }
+
+        g_CurrentMapRewardSerial = 0;
+        g_CurrentChapterSerial = 1;
+        BSR_BeginChapterSnapshot();
+    }
+    else if (!retryingCurrentChapter)
     {
         if (g_CurrentChapterSerial <= 0)
         {
             g_CurrentChapterSerial = 1;
         }
-        else if (mapChanged)
+        else if (normalChapterTransition)
         {
             g_CurrentChapterSerial++;
         }
@@ -98,11 +140,11 @@ public void OnMapStart()
 
     g_RetryingChapter = false;
 
-    // map_transition handles normal play; the name fallback supports changelevel.
-    // finale_win suppresses the first-map reward of the next campaign.
+    // Only a real map_transition continues a run and grants a chapter reward.
+    // Direct map/changelevel starts are treated as the first map of a new run.
     bool shouldGrantMapReward =
-        !g_SuppressNextMapReward
-        && (g_MapTransitionArmed || mapChanged);
+        !startingAfterFinale
+        && normalChapterTransition;
 
     g_MapTransitionArmed = false;
     g_SuppressNextMapReward = false;

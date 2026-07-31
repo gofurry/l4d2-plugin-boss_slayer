@@ -18,44 +18,61 @@ void BSR_ShowExchangeMenu(int client)
 
     Menu menu = new Menu(BSR_MenuHandler_Exchange);
     menu.SetTitle(
-        "Boss Slayer - All perks maxed\nRedeem one reward\nPress 9 to choose later\nPending rewards: %d",
+        "%T",
+        "Exchange Menu Title",
+        client,
         BSR_GetPendingRewards(client)
     );
     menu.Pagination = MENU_NO_PAGINATION;
     menu.ExitButton = false;
 
     char itemInfo[16];
+    char displayText[128];
 
     IntToString(view_as<int>(Exchange_Health), itemInfo, sizeof(itemInfo));
+    FormatEx(
+        displayText,
+        sizeof(displayText),
+        "%T",
+        "Exchange Health",
+        client,
+        BSR_GetExchangeRealHealth(),
+        BSR_GetExchangeTempHealth()
+    );
     menu.AddItem(
         itemInfo,
-        "Restore 20 real + 20 temporary health",
+        displayText,
         BSR_HasHealthCapacity(client) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED
     );
 
     IntToString(view_as<int>(Exchange_Ammo), itemInfo, sizeof(itemInfo));
-    menu.AddItem(itemInfo, "Refill primary reserve ammo");
+    FormatEx(displayText, sizeof(displayText), "%T", "Exchange Ammo", client);
+    menu.AddItem(itemInfo, displayText);
 
     IntToString(view_as<int>(Exchange_Medical), itemInfo, sizeof(itemInfo));
+    FormatEx(displayText, sizeof(displayText), "%T", "Exchange Medical", client);
     menu.AddItem(
         itemInfo,
-        "Receive one random medical item",
+        displayText,
         !BSR_HasAnyMedicalItem(client) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED
     );
 
     IntToString(view_as<int>(Exchange_Throwable), itemInfo, sizeof(itemInfo));
+    FormatEx(displayText, sizeof(displayText), "%T", "Exchange Throwable", client);
     menu.AddItem(
         itemInfo,
-        "Receive one random throwable",
+        displayText,
         !BSR_HasThrowable(client) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED
     );
 
     for (int spacer = 0; spacer < 4; spacer++)
     {
-        menu.AddItem("spacer", "", ITEMDRAW_SPACER);
+        menu.AddItem("close", "", ITEMDRAW_NOTEXT);
     }
 
-    menu.AddItem("close", "Choose later / Close menu");
+    FormatEx(displayText, sizeof(displayText), "%T", "Menu Choose Later", client);
+    menu.AddItem("close", displayText);
+    menu.AddItem("close", "", ITEMDRAW_NOTEXT);
 
     if (menu.Display(client, MENU_TIME_FOREVER))
     {
@@ -64,7 +81,12 @@ void BSR_ShowExchangeMenu(int client)
     else
     {
         delete menu;
-        PrintToChat(client, "\x04[Boss Slayer]\x01 Exchange menu failed to open. Type !perk to retry.");
+        BSR_PrintChat(
+            client,
+            BSR_Message_Minimal,
+            "%t",
+            "Exchange Menu Open Failed"
+        );
     }
 }
 
@@ -98,7 +120,12 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
 
         if (StrEqual(itemInfo, "close"))
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk to redeem later.");
+            BSR_PrintChat(
+                client,
+                BSR_Message_Normal,
+                "%t",
+                "Reward Saved"
+            );
             return 0;
         }
 
@@ -106,7 +133,12 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
 
         if (!BSR_SetPendingRewards(client, pendingRewards - 1))
         {
-            PrintToChat(client, "\x04[Boss Slayer]\x01 Could not spend the reward. Please retry.");
+            BSR_PrintChat(
+                client,
+                BSR_Message_Minimal,
+                "%t",
+                "Reward Spend Failed"
+            );
             return 0;
         }
 
@@ -115,7 +147,11 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
         switch (exchange)
         {
             case Exchange_Health:
-                succeeded = BSR_AddSplitHealth(client, EXCHANGE_REAL_HEALTH, EXCHANGE_TEMP_HEALTH);
+                succeeded = BSR_AddSplitHealth(
+                    client,
+                    BSR_GetExchangeRealHealth(),
+                    BSR_GetExchangeTempHealth()
+                );
             case Exchange_Ammo:
                 succeeded = BSR_RefillPrimaryReserveAmmo(client);
             case Exchange_Medical:
@@ -127,17 +163,21 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
         if (!succeeded)
         {
             BSR_SetPendingRewards(client, pendingRewards);
-            PrintToChat(
+            BSR_PrintChat(
                 client,
-                "\x04[Boss Slayer]\x01 That exchange is unavailable now. Your reward was not spent."
+                BSR_Message_Minimal,
+                "%t",
+                "Exchange Unavailable"
             );
             BSR_QueueNextPerkMenu(client);
             return 0;
         }
 
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Reward redeemed. Remaining rewards: %d",
+            BSR_Message_Minimal,
+            "%t",
+            "Exchange Redeemed",
             pendingRewards - 1
         );
 
@@ -156,7 +196,12 @@ public int BSR_MenuHandler_Exchange(Menu menu, MenuAction action, int param1, in
 
             if (BSR_IsHumanSurvivor(client) && BSR_GetPendingRewards(client) > 0)
             {
-                PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk to redeem later.");
+                BSR_PrintChat(
+                    client,
+                    BSR_Message_Normal,
+                    "%t",
+                    "Reward Saved"
+                );
             }
         }
     }

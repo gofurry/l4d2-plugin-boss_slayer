@@ -68,7 +68,8 @@ bool BSR_CacheClientSteamId(int client)
 
 bool BSR_IsHumanSurvivor(int client)
 {
-    return client >= 1
+    return BSR_IsSupportedGameMode()
+        && client >= 1
         && client <= MaxClients
         && IsClientInGame(client)
         && !IsFakeClient(client)
@@ -246,6 +247,13 @@ int BSR_GetSupplyTrainingStacks(int client)
 
     int value = 0;
     g_SupplyTrainingStacksBySteamId.GetValue(steamId, value);
+
+    int maxStacks = BSR_GetSupplyTrainingMaxStacks();
+    if (value > maxStacks)
+    {
+        value = maxStacks;
+    }
+
     return value;
 }
 
@@ -255,6 +263,12 @@ bool BSR_SetSupplyTrainingStacks(int client, int stacks)
     if (!BSR_TryGetClientSteamId(client, steamId, sizeof(steamId)))
     {
         return false;
+    }
+
+    int maxStacks = BSR_GetSupplyTrainingMaxStacks();
+    if (stacks > maxStacks)
+    {
+        stacks = maxStacks;
     }
 
     if (stacks <= 0)
@@ -271,7 +285,7 @@ bool BSR_SetSupplyTrainingStacks(int client, int stacks)
 
 float BSR_GetSupplyTrainingBonus(int client)
 {
-    return float(BSR_GetSupplyTrainingStacks(client)) * SUPPLY_TRAINING_BONUS_PER_STACK;
+    return float(BSR_GetSupplyTrainingStacks(client)) * BSR_GetSupplyTrainingBonusPerStack();
 }
 
 bool BSR_PlayerHasAnyProgress(int client)
@@ -350,6 +364,7 @@ void BSR_ResetAllPlayerData()
     g_PerkLevelsBySteamId.Clear();
     g_SupplyTrainingStacksBySteamId.Clear();
     g_SupplyTrainingChapterBySteamId.Clear();
+    g_LastMapRewardSerialBySteamId.Clear();
     BSR_ClearChapterSnapshot();
 
     for (int client = 1; client <= MaxClients; client++)

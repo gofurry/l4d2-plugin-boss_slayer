@@ -98,7 +98,7 @@ public void Event_TankKilled(Event event, const char[] name, bool dontBroadcast)
     int tankEntity = GetClientOfUserId(event.GetInt("userid"));
     int killer = GetClientOfUserId(event.GetInt("attacker"));
 
-    BSR_ResolveBossRewards(tankEntity, killer, "Tank");
+    BSR_ResolveBossRewards(tankEntity, killer, "Boss Tank");
 }
 
 public void Event_WitchKilled(Event event, const char[] name, bool dontBroadcast)
@@ -106,7 +106,7 @@ public void Event_WitchKilled(Event event, const char[] name, bool dontBroadcast
     int witchEntity = event.GetInt("witchid");
     int killer = GetClientOfUserId(event.GetInt("userid"));
 
-    BSR_ResolveBossRewards(witchEntity, killer, "Witch");
+    BSR_ResolveBossRewards(witchEntity, killer, "Boss Witch");
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
@@ -129,9 +129,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
         if (BSR_PlayerHasAnyProgress(victim))
         {
-            PrintToChat(
+            BSR_PrintChat(
                 victim,
-                "\x04[Boss Slayer]\x01 You died, but your campaign build has been retained."
+                BSR_Message_Detailed,
+                "%t",
+                "Death Build Retained"
             );
         }
 
@@ -178,11 +180,21 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 
 public void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 {
+    if (!BSR_IsSupportedGameMode())
+    {
+        return;
+    }
+
     g_MapTransitionArmed = true;
 }
 
 public void Event_MissionLost(Event event, const char[] name, bool dontBroadcast)
 {
+    if (!BSR_IsSupportedGameMode())
+    {
+        return;
+    }
+
     BSR_RestoreChapterSnapshot();
     BSR_CancelAllPerkMenus();
     BSR_ClearAllBossParticipation();
@@ -190,13 +202,20 @@ public void Event_MissionLost(Event event, const char[] name, bool dontBroadcast
     g_MapTransitionArmed = false;
     g_RetryingChapter = true;
 
-    PrintToChatAll(
-        "\x04[Boss Slayer]\x01 Mission lost. Builds restored to the chapter-start state."
+    BSR_PrintChatAll(
+        BSR_Message_Minimal,
+        "%t",
+        "Mission Lost Restored"
     );
 }
 
 public void Event_FinaleWin(Event event, const char[] name, bool dontBroadcast)
 {
+    if (!BSR_IsSupportedGameMode())
+    {
+        return;
+    }
+
     BSR_ResetAllPlayerData();
     BSR_CancelAllPerkMenus();
     BSR_ClearAllBossParticipation();
@@ -207,7 +226,9 @@ public void Event_FinaleWin(Event event, const char[] name, bool dontBroadcast)
     g_MapTransitionArmed = false;
     g_CurrentMapEntryRewardEnabled = false;
 
-    PrintToChatAll(
-        "\x04[Boss Slayer]\x01 Campaign completed. All builds have been reset."
+    BSR_PrintChatAll(
+        BSR_Message_Minimal,
+        "%t",
+        "Campaign Complete Reset"
     );
 }

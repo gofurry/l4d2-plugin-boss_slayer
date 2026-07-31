@@ -143,7 +143,7 @@ public Action BSR_OnTakeDamage(
     )
     {
         int level = BSR_GetPerkLevel(attacker, Perk_Firepower);
-        float bonus = (float(level) * FIREPOWER_DAMAGE_PER_LEVEL)
+        float bonus = (float(level) * BSR_GetFirepowerPerLevel())
             + BSR_GetSupplyTrainingBonus(attacker);
 
         if (bonus > 0.0)
@@ -156,8 +156,13 @@ public Action BSR_OnTakeDamage(
     if (BSR_IsHumanSurvivor(victim) && BSR_ShouldApplyToughness(attacker, inflictor, damageType))
     {
         int level = BSR_GetPerkLevel(victim, Perk_Toughness);
-        float reduction = (float(level) * TOUGHNESS_REDUCTION_PER_LEVEL)
+        float reduction = (float(level) * BSR_GetToughnessPerLevel())
             + BSR_GetSupplyTrainingBonus(victim);
+
+        if (reduction > 0.90)
+        {
+            reduction = 0.90;
+        }
 
         if (reduction > 0.0)
         {
@@ -376,14 +381,16 @@ void BSR_ApplyBossHealing(int client)
         return;
     }
 
-    int realAmount = level * BOSS_HEAL_REAL_PER_LEVEL;
-    int tempAmount = level * BOSS_HEAL_TEMP_PER_LEVEL;
+    int realAmount = level * BSR_GetBossHealRealPerLevel();
+    int tempAmount = level * BSR_GetBossHealTempPerLevel();
 
     if (BSR_AddSplitHealth(client, realAmount, tempAmount))
     {
-        PrintToChat(
+        BSR_PrintChat(
             client,
-            "\x04[Boss Slayer]\x01 Boss Healing restored up to %d real and %d temporary health.",
+            BSR_Message_Detailed,
+            "%t",
+            "Boss Healing Triggered",
             realAmount,
             tempAmount
         );
@@ -402,7 +409,7 @@ public void Event_HealSuccess(Event event, const char[] name, bool dontBroadcast
 
     int level = BSR_GetPerkLevel(healer, Perk_HealingBoost);
     int restored = event.GetInt("health_restored");
-    float bonusMultiplier = (float(level) * HEALING_BOOST_PER_LEVEL)
+    float bonusMultiplier = (float(level) * BSR_GetHealingBoostPerLevel())
         + BSR_GetSupplyTrainingBonus(healer);
 
     if (restored > 0 && bonusMultiplier > 0.0)
@@ -418,7 +425,7 @@ public void Event_HealSuccess(Event event, const char[] name, bool dontBroadcast
         {
             BSR_AddTemporaryHealth(
                 healer,
-                feedbackLevel * FIRST_AID_FEEDBACK_PER_LEVEL
+                feedbackLevel * BSR_GetFirstAidFeedbackPerLevel()
             );
         }
     }
@@ -442,7 +449,7 @@ public void Event_PillsUsed(Event event, const char[] name, bool dontBroadcast)
     }
 
     int level = BSR_GetPerkLevel(user, Perk_HealingBoost);
-    float bonusMultiplier = (float(level) * HEALING_BOOST_PER_LEVEL)
+    float bonusMultiplier = (float(level) * BSR_GetHealingBoostPerLevel())
         + BSR_GetSupplyTrainingBonus(user);
 
     if (bonusMultiplier > 0.0)
@@ -464,7 +471,7 @@ public void Event_AdrenalineUsed(Event event, const char[] name, bool dontBroadc
     }
 
     int level = BSR_GetPerkLevel(client, Perk_HealingBoost);
-    float bonusMultiplier = (float(level) * HEALING_BOOST_PER_LEVEL)
+    float bonusMultiplier = (float(level) * BSR_GetHealingBoostPerLevel())
         + BSR_GetSupplyTrainingBonus(client);
 
     if (bonusMultiplier > 0.0)
@@ -510,7 +517,7 @@ public void BSR_Frame_AdjustMeleeAttack(any userId)
     }
 
     int level = BSR_GetPerkLevel(client, Perk_MeleeSpeed);
-    float speedBonus = (float(level) * MELEE_SPEED_PER_LEVEL)
+    float speedBonus = (float(level) * BSR_GetMeleeSpeedPerLevel())
         + BSR_GetSupplyTrainingBonus(client);
     int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 

@@ -64,3 +64,7 @@ ConVar g_AdrenalineHealthValue;
 ConVar g_SurvivorReviveDuration;
 float g_BaseReviveDuration;
 Handle g_SupplyTimer;
+
+// The plugin is intentionally limited to cooperative campaign modes.
+ConVar g_GameMode;
+bool g_GameModeSupported;

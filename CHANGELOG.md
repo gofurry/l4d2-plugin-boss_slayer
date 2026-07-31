@@ -1,5 +1,52 @@
 # Changelog
 
+## 1.0.0
+
+- Published the first stable Boss Slayer Roguelite release for cooperative and realism campaigns.
+- Finalized fourteen localized roguelite perks, max-build reward exchange and configurable balance values.
+- Preserved SteamID-keyed builds across chapters and personal deaths, with chapter-start rollback on mission loss.
+- Added Boss participation, special-infected, common-infected and chapter-entry reward paths.
+- Finalized safe numeric-key menu navigation, English and Simplified Chinese translations, and configurable message noise levels.
+- Restricted development commands behind SourceMod admin permissions and a default-off server switch with audit logging.
+- Added an install-ready server package, build/deploy scripts, configuration reference and regression checklist.
+
+## 0.8.0
+
+- Restricted all self-targeted development commands to `ADMFLAG_CHEATS` (`n`).
+- Added `sm_bsr_debug_commands`, disabled by default, as a second gate for development commands.
+- Kept `sm_bsr_resetall` restricted to `ADMFLAG_ROOT` (`z`) and independent of the debug switch.
+- Added SourceMod audit logging for successful test mutations, personal resets and global resets.
+- Expanded README and configuration documentation with permission tiers, override behavior, upgrade guidance and log locations.
+
+## 0.7.2
+
+- Made every unlisted numeric key in perk and full-build exchange menus safely choose later instead of falling through to another selection.
+- Simplified the visible slot-9 action to `Choose later` / `稍后选择`.
+- Generalized `!perks` pagination: middle pages use slot 8 for Previous and slot 9 for Next; first and final pages show only the available direction, and other number keys close.
+- Extended `!bsr_testreward [1-100]` to grant an explicit number of test choices.
+- Enforced the gameplay boundary in code: Boss Slayer now runs only in `coop` and `realism`, and is disabled in versus, survival, scavenge and mutation modes.
+
+## 0.7.1
+
+- Expanded Precision Hunter to every firearm in the primary-weapon slot except the grenade launcher.
+- Reset all in-memory builds when a map starts without a normal `map_transition`, preventing abandoned campaigns from leaking progress into a new run.
+- Rewrote translation sections into SourceMod-compatible multiline KeyValues and added build-time syntax/key validation.
+- Replaced the `!perks` default paginator with explicit `9 Next`, `8 Previous` and `9 Exit` controls, removing the broken slot-0 exit label.
+- Escaped all localized percentage signs so punctuation no longer causes `%` to disappear from menus or chat messages.
+- Shortened build-menu summaries to stay below the engine's safe 63-byte UTF-8 item limit and added a build-time limit check.
+- Added a searchable bilingual HTML audit containing every translation phrase for manual review.
+- Added a complete configuration reference that separates server-editable ConVars from code-defined rules.
+
+## 0.7.0
+
+- Added per-player English and Simplified Chinese translations using SourceMod's native phrase system.
+- Added configurable chat verbosity and reduced repetitive reward/passive-effect messages.
+- Changed `!perks` from fourteen chat lines to a paginated localized build menu.
+- Moved reward thresholds, reward amounts, perk multipliers, timers and full-build exchange values into the auto-generated `cfg/sourcemod/boss_slayer.cfg`.
+- Updated local deployment to install translation files alongside the compiled plugin.
+- Added a release packaging script that produces an install-ready server ZIP.
+- Defined human-only gameplay as an explicit project boundary; idle and Bot takeover inheritance are not supported.
+
 ## 0.6.1
 
 - Replaced the unreliable default `0` exit entry with an explicit `9` choose-later item in perk and exchange menus.
