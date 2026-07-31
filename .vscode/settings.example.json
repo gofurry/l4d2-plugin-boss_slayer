@@ -1,0 +1,11 @@
+{
+    "SourcePawnLanguageServer.compiler.path": "C:/path/to/left4dead2/addons/sourcemod/scripting/spcomp.exe",
+    "SourcePawnLanguageServer.includeDirectories": [
+        "C:/path/to/left4dead2/addons/sourcemod/scripting/include",
+        "C:/path/to/l4d2-plugin-boss_slayer/include"
+    ],
+    "SourcePawnLanguageServer.eventsGameName": "Left 4 Dead 2",
+    "files.associations": {
+        "*.inc": "sourcepawn"
+    }
+}
