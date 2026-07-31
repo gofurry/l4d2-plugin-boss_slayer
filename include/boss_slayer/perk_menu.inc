@@ -3,6 +3,116 @@
 #endif
 #define _boss_slayer_perk_menu_included
 
+void BSR_ResetPerkChoiceState(int client)
+{
+    if (client < 1 || client > MaxClients)
+    {
+        return;
+    }
+
+    g_PerkMenuOpen[client] = false;
+    g_CurrentChoiceCount[client] = 0;
+    g_RerollUsed[client] = false;
+
+    for (int index = 0; index < PERK_MENU_CHOICES; index++)
+    {
+        g_CurrentChoices[client][index] = -1;
+    }
+}
+
+bool BSR_IsCurrentPerkChoiceValid(int client)
+{
+    if (g_CurrentChoiceCount[client] <= 0)
+    {
+        return false;
+    }
+
+    for (int index = 0; index < g_CurrentChoiceCount[client]; index++)
+    {
+        int perkIndex = g_CurrentChoices[client][index];
+        if (perkIndex < 0 || perkIndex >= view_as<int>(Perk_Count))
+        {
+            return false;
+        }
+
+        PerkType perk = view_as<PerkType>(perkIndex);
+        if (BSR_GetPerkLevel(client, perk) >= BSR_GetPerkMaxLevel(perk))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool BSR_WasPreviousChoice(int perkIndex, int previous[PERK_MENU_CHOICES], int previousCount)
+{
+    for (int index = 0; index < previousCount; index++)
+    {
+        if (previous[index] == perkIndex)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int BSR_GeneratePerkChoices(int client, bool avoidPrevious)
+{
+    int previous[PERK_MENU_CHOICES];
+    int previousCount = g_CurrentChoiceCount[client];
+
+    for (int index = 0; index < PERK_MENU_CHOICES; index++)
+    {
+        previous[index] = g_CurrentChoices[client][index];
+        g_CurrentChoices[client][index] = -1;
+    }
+
+    int availablePerks[Perk_Count];
+    int availableCount = BSR_BuildAvailablePerkPool(client, availablePerks);
+    BSR_ShufflePerkPool(availablePerks, availableCount);
+
+    int desiredCount = availableCount < PERK_MENU_CHOICES
+        ? availableCount
+        : PERK_MENU_CHOICES;
+    int selectedCount = 0;
+
+    if (avoidPrevious)
+    {
+        for (int index = 0; index < availableCount && selectedCount < desiredCount; index++)
+        {
+            if (!BSR_WasPreviousChoice(availablePerks[index], previous, previousCount))
+            {
+                g_CurrentChoices[client][selectedCount++] = availablePerks[index];
+            }
+        }
+    }
+
+    for (int index = 0; index < availableCount && selectedCount < desiredCount; index++)
+    {
+        int perkIndex = availablePerks[index];
+        bool alreadySelected = false;
+
+        for (int selected = 0; selected < selectedCount; selected++)
+        {
+            if (g_CurrentChoices[client][selected] == perkIndex)
+            {
+                alreadySelected = true;
+                break;
+            }
+        }
+
+        if (!alreadySelected)
+        {
+            g_CurrentChoices[client][selectedCount++] = perkIndex;
+        }
+    }
+
+    g_CurrentChoiceCount[client] = selectedCount;
+    return selectedCount;
+}
+
 void BSR_ShowPerkMenu(int client)
 {
     if (!BSR_IsHumanSurvivor(client) || !IsPlayerAlive(client) || g_PerkMenuOpen[client])
@@ -21,16 +131,16 @@ void BSR_ShowPerkMenu(int client)
 
     if (availableCount <= 0)
     {
-        // v0.4.1 has no max-level compensation. Avoid leaving unusable rewards.
-        BSR_SetPendingRewards(client, 0);
-        PrintToChat(
-            client,
-            "\x04[Boss Slayer]\x01 All perks are maxed. Remaining rewards were consumed."
-        );
+        g_CurrentChoiceCount[client] = 0;
+        g_RerollUsed[client] = false;
+        BSR_ShowExchangeMenu(client);
         return;
     }
 
-    BSR_ShufflePerkPool(availablePerks, availableCount);
+    if (!BSR_IsCurrentPerkChoiceValid(client))
+    {
+        BSR_GeneratePerkChoices(client, false);
+    }
 
     Menu menu = new Menu(BSR_MenuHandler_Perk);
     menu.SetTitle(
@@ -39,19 +149,15 @@ void BSR_ShowPerkMenu(int client)
     );
     menu.ExitButton = true;
 
-    int choiceCount = availableCount < PERK_MENU_CHOICES
-        ? availableCount
-        : PERK_MENU_CHOICES;
-
-    for (int i = 0; i < choiceCount; i++)
+    for (int index = 0; index < g_CurrentChoiceCount[client]; index++)
     {
-        PerkType perk = view_as<PerkType>(availablePerks[i]);
+        PerkType perk = view_as<PerkType>(g_CurrentChoices[client][index]);
         int currentLevel = BSR_GetPerkLevel(client, perk);
 
         char itemInfo[16];
         char perkName[32];
-        char shortEffect[64];
-        char displayText[128];
+        char shortEffect[80];
+        char displayText[160];
 
         IntToString(view_as<int>(perk), itemInfo, sizeof(itemInfo));
         BSR_GetPerkName(perk, perkName, sizeof(perkName));
@@ -70,6 +176,11 @@ void BSR_ShowPerkMenu(int client)
         menu.AddItem(itemInfo, displayText);
     }
 
+    if (BSR_GetPerkLevel(client, Perk_FateReroll) > 0 && !g_RerollUsed[client])
+    {
+        menu.AddItem("reroll", "Reroll these choices (free, once per reward)");
+    }
+
     if (menu.Display(client, MENU_TIME_FOREVER))
     {
         g_PerkMenuOpen[client] = true;
@@ -77,10 +188,7 @@ void BSR_ShowPerkMenu(int client)
     else
     {
         delete menu;
-        PrintToChat(
-            client,
-            "\x04[Boss Slayer]\x01 The menu could not open. Type !perk to try again."
-        );
+        PrintToChat(client, "\x04[Boss Slayer]\x01 The menu could not open. Type !perk to try again.");
     }
 }
 
@@ -114,6 +222,21 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
             return 0;
         }
 
+        if (StrEqual(itemInfo, "reroll"))
+        {
+            if (BSR_GetPerkLevel(client, Perk_FateReroll) <= 0 || g_RerollUsed[client])
+            {
+                PrintToChat(client, "\x04[Boss Slayer]\x01 This reward has already been rerolled.");
+                return 0;
+            }
+
+            g_RerollUsed[client] = true;
+            BSR_GeneratePerkChoices(client, true);
+            PrintToChat(client, "\x04[Boss Slayer]\x01 Fate Reroll replaced the current choices.");
+            BSR_QueueNextPerkMenu(client);
+            return 0;
+        }
+
         int perkIndex = StringToInt(itemInfo);
         if (perkIndex < 0 || perkIndex >= view_as<int>(Perk_Count))
         {
@@ -125,9 +248,9 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
         int currentLevel = BSR_GetPerkLevel(client, perk);
         int maxLevel = BSR_GetPerkMaxLevel(perk);
 
-        // Protect against a stale menu or duplicated selection.
         if (currentLevel >= maxLevel)
         {
+            g_CurrentChoiceCount[client] = 0;
             PrintToChat(client, "\x04[Boss Slayer]\x01 That perk is already at maximum level.");
             BSR_QueueNextPerkMenu(client);
             return 0;
@@ -141,14 +264,13 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
 
         if (!BSR_SetPendingRewards(client, pendingRewards - 1))
         {
-            // Roll back the level when spending the reward fails.
             BSR_SetPerkLevel(client, perk, currentLevel);
             PrintToChat(client, "\x04[Boss Slayer]\x01 Could not spend the reward. Please try again.");
             return 0;
         }
 
         char perkName[32];
-        char description[96];
+        char description[128];
         BSR_GetPerkName(perk, perkName, sizeof(perkName));
         BSR_GetPerkDescription(perk, description, sizeof(description));
 
@@ -161,13 +283,11 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
         );
 
         int remainingRewards = pendingRewards - 1;
+        BSR_ResetPerkChoiceState(client);
+
         if (remainingRewards > 0)
         {
-            PrintToChat(
-                client,
-                "\x04[Boss Slayer]\x01 Remaining rewards: %d",
-                remainingRewards
-            );
+            PrintToChat(client, "\x04[Boss Slayer]\x01 Remaining rewards: %d", remainingRewards);
             BSR_QueueNextPerkMenu(client);
         }
     }
@@ -181,10 +301,7 @@ public int BSR_MenuHandler_Perk(Menu menu, MenuAction action, int param1, int pa
 
             if (BSR_IsHumanSurvivor(client) && BSR_GetPendingRewards(client) > 0)
             {
-                PrintToChat(
-                    client,
-                    "\x04[Boss Slayer]\x01 Reward saved. Type !perk when you are ready."
-                );
+                PrintToChat(client, "\x04[Boss Slayer]\x01 Reward saved. Type !perk when you are ready.");
             }
         }
     }
@@ -203,12 +320,7 @@ void BSR_QueueNextPerkMenu(int client)
         return;
     }
 
-    CreateTimer(
-        0.3,
-        Timer_ShowNextPerkMenu,
-        GetClientUserId(client),
-        TIMER_FLAG_NO_MAPCHANGE
-    );
+    CreateTimer(0.3, Timer_ShowNextPerkMenu, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_ShowNextPerkMenu(Handle timer, any userId)
@@ -227,16 +339,11 @@ void BSR_CancelAllPerkMenus()
 {
     for (int client = 1; client <= MaxClients; client++)
     {
-        if (!g_PerkMenuOpen[client])
-        {
-            continue;
-        }
-
-        if (IsClientInGame(client))
+        if (g_PerkMenuOpen[client] && IsClientInGame(client))
         {
             CancelClientMenu(client);
         }
 
-        g_PerkMenuOpen[client] = false;
+        BSR_ResetPerkChoiceState(client);
     }
 }

@@ -10,6 +10,13 @@ void BSR_RegisterEvents()
     HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Post);
     HookEvent("infected_hurt", Event_InfectedHurt, EventHookMode_Post);
     HookEvent("infected_death", Event_InfectedDeath, EventHookMode_Post);
+    HookEvent("heal_success", Event_HealSuccess, EventHookMode_Post);
+    HookEvent("pills_used", Event_PillsUsed, EventHookMode_Post);
+    HookEvent("adrenaline_used", Event_AdrenalineUsed, EventHookMode_Post);
+    HookEvent("weapon_fire", Event_WeaponFire, EventHookMode_Post);
+    HookEvent("revive_begin", Event_ReviveBegin, EventHookMode_Post);
+    HookEvent("revive_end", Event_ReviveStopped, EventHookMode_Post);
+    HookEvent("revive_success", Event_ReviveStopped, EventHookMode_Post);
 
     HookEvent("tank_killed", Event_TankKilled, EventHookMode_Post);
     HookEvent("witch_killed", Event_WitchKilled, EventHookMode_Post);
@@ -106,24 +113,25 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 {
     int victim = GetClientOfUserId(event.GetInt("userid"));
 
-    // A real human survivor death ends that player's entire build.
+    // Individual deaths keep campaign progress. Runtime-only timers and open
+    // menus are cleared until the survivor becomes playable again.
     if (BSR_IsHumanSurvivor(victim))
     {
-        bool hadBuild = BSR_PlayerHasAnyProgress(victim);
-
-        BSR_ResetPlayerData(victim);
+        BSR_ResetRuntimeEffectState(victim);
+        BSR_ClearReviveBoost(victim);
 
         if (g_PerkMenuOpen[victim])
         {
-            g_PerkMenuOpen[victim] = false;
             CancelClientMenu(victim);
         }
 
-        if (hadBuild)
+        g_PerkMenuOpen[victim] = false;
+
+        if (BSR_PlayerHasAnyProgress(victim))
         {
             PrintToChat(
                 victim,
-                "\x04[Boss Slayer]\x01 You died. Your entire build has been reset."
+                "\x04[Boss Slayer]\x01 You died, but your campaign build has been retained."
             );
         }
 
@@ -143,6 +151,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
         return;
     }
 
+    char killWeapon[40];
+    event.GetString("weapon", killWeapon, sizeof(killWeapon));
+
+    BSR_ApplyAmmoReclamation(attacker);
+    BSR_ApplyPrecisionHunter(attacker, killWeapon);
     BSR_RecordSpecialInfectedKill(attacker);
 }
 
@@ -170,13 +183,15 @@ public void Event_MapTransition(Event event, const char[] name, bool dontBroadca
 
 public void Event_MissionLost(Event event, const char[] name, bool dontBroadcast)
 {
-    BSR_ResetAllPlayerData();
+    BSR_RestoreChapterSnapshot();
     BSR_CancelAllPerkMenus();
     BSR_ClearAllBossParticipation();
+    BSR_ResetAllReviveBoosts();
     g_MapTransitionArmed = false;
+    g_RetryingChapter = true;
 
     PrintToChatAll(
-        "\x04[Boss Slayer]\x01 Mission lost. All builds have been reset."
+        "\x04[Boss Slayer]\x01 Mission lost. Builds restored to the chapter-start state."
     );
 }
 
@@ -185,6 +200,7 @@ public void Event_FinaleWin(Event event, const char[] name, bool dontBroadcast)
     BSR_ResetAllPlayerData();
     BSR_CancelAllPerkMenus();
     BSR_ClearAllBossParticipation();
+    BSR_ResetAllReviveBoosts();
 
     // The next map is the first map of a new campaign, so it gets no reward.
     g_SuppressNextMapReward = true;

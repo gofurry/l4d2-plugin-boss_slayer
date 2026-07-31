@@ -10,12 +10,26 @@ void BSR_InitializeState()
     g_CommonKillsBySteamId = new StringMap();
     g_PendingRewardsBySteamId = new StringMap();
     g_PerkLevelsBySteamId = new StringMap();
+    g_SupplyTrainingStacksBySteamId = new StringMap();
+    g_SupplyTrainingChapterBySteamId = new StringMap();
     g_LastMapRewardSerialBySteamId = new StringMap();
 
+    g_ChapterBossKillsBySteamId = new StringMap();
+    g_ChapterSpecialKillsBySteamId = new StringMap();
+    g_ChapterCommonKillsBySteamId = new StringMap();
+    g_ChapterPendingRewardsBySteamId = new StringMap();
+    g_ChapterPerkLevelsBySteamId = new StringMap();
+    g_ChapterSupplyTrainingStacksBySteamId = new StringMap();
+    g_ChapterSupplyTrainingChapterBySteamId = new StringMap();
+    g_ChapterLastMapRewardSerialBySteamId = new StringMap();
+    g_ChapterSnapshotReadyBySteamId = new StringMap();
+
     g_CurrentMapRewardSerial = 0;
+    g_CurrentChapterSerial = 1;
     g_CurrentMapEntryRewardEnabled = false;
     g_MapTransitionArmed = false;
     g_SuppressNextMapReward = false;
+    g_RetryingChapter = false;
     g_LastMapName[0] = 0;
     GetCurrentMap(g_LastMapName, sizeof(g_LastMapName));
 
@@ -27,14 +41,23 @@ void BSR_CacheConnectedClients()
     // Support late plugin loading while players are already connected.
     for (int client = 1; client <= MaxClients; client++)
     {
-        g_PerkMenuOpen[client] = false;
+        BSR_ResetPerkChoiceState(client);
         g_ClientSteamId[client][0] = 0;
 
         if (IsClientConnected(client) && !IsFakeClient(client))
         {
             BSR_CacheClientSteamId(client);
+            BSR_HookDamageEntity(client);
+            BSR_EnsureChapterSnapshot(client);
         }
     }
+}
+
+public void OnClientPutInServer(int client)
+{
+    BSR_ResetRuntimeEffectState(client);
+    BSR_ResetPerkChoiceState(client);
+    BSR_HookDamageEntity(client);
 }
 
 public void OnMapStart()
@@ -42,10 +65,11 @@ public void OnMapStart()
     // Menus and encounter participation do not survive a map change.
     for (int client = 1; client <= MaxClients; client++)
     {
-        g_PerkMenuOpen[client] = false;
+        BSR_ResetPerkChoiceState(client);
     }
 
     BSR_ClearAllBossParticipation();
+    BSR_ResetAllReviveBoosts();
 
     char currentMap[PLATFORM_MAX_PATH];
     currentMap[0] = 0;
@@ -55,6 +79,24 @@ public void OnMapStart()
         g_LastMapName[0] != 0
         && currentMap[0] != 0
         && !StrEqual(g_LastMapName, currentMap, false);
+
+    bool retryingCurrentChapter = g_RetryingChapter && !mapChanged;
+
+    if (!retryingCurrentChapter)
+    {
+        if (g_CurrentChapterSerial <= 0)
+        {
+            g_CurrentChapterSerial = 1;
+        }
+        else if (mapChanged)
+        {
+            g_CurrentChapterSerial++;
+        }
+
+        BSR_BeginChapterSnapshot();
+    }
+
+    g_RetryingChapter = false;
 
     // map_transition handles normal play; the name fallback supports changelevel.
     // finale_win suppresses the first-map reward of the next campaign.
@@ -111,8 +153,11 @@ public void OnClientDisconnect(int client)
         return;
     }
 
-    g_PerkMenuOpen[client] = false;
+    BSR_ResetPerkChoiceState(client);
     g_ClientSteamId[client][0] = 0;
+    g_DamageHooked[client] = false;
+    BSR_ResetRuntimeEffectState(client);
+    BSR_ClearReviveBoost(client);
     BSR_ClearClientBossParticipation(client);
 
     // Do not delete SteamID data here. This preserves chapter changes and

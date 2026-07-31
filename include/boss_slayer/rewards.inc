@@ -59,6 +59,8 @@ void BSR_ResolveBossRewards(
 
         if (isKiller)
         {
+            // Healing uses the level owned before this kill's reward menu.
+            BSR_ApplyBossHealing(client);
             BSR_IncrementBossKills(client);
         }
 
@@ -198,6 +200,10 @@ void BSR_TryGrantMapEntryReward(int client)
         g_CurrentMapRewardSerial
     );
 
+    // The chapter-entry reward belongs to the chapter's initial state. If the
+    // team wipes, the unspent reward is restored and can be chosen again.
+    BSR_CaptureChapterSnapshotForClient(client);
+
     PrintToChat(
         client,
         "\x04[Boss Slayer]\x01 New chapter compensation: +1 perk choice."
@@ -221,6 +227,7 @@ public Action Timer_GrantMapEntryRewards(Handle timer, any data)
     for (int client = 1; client <= MaxClients; client++)
     {
         BSR_TryGrantMapEntryReward(client);
+        BSR_EnsureChapterSnapshot(client);
     }
 
     return Plugin_Stop;
@@ -230,6 +237,7 @@ public Action Timer_TryGrantMapEntryReward(Handle timer, any userId)
 {
     int client = GetClientOfUserId(userId);
     BSR_TryGrantMapEntryReward(client);
+    BSR_EnsureChapterSnapshot(client);
 
     return Plugin_Stop;
 }

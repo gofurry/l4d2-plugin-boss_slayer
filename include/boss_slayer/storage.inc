@@ -236,6 +236,44 @@ bool BSR_SetPerkLevel(int client, PerkType perk, int level)
     return true;
 }
 
+int BSR_GetSupplyTrainingStacks(int client)
+{
+    char steamId[MAX_AUTHID_LENGTH];
+    if (!BSR_TryGetClientSteamId(client, steamId, sizeof(steamId)))
+    {
+        return 0;
+    }
+
+    int value = 0;
+    g_SupplyTrainingStacksBySteamId.GetValue(steamId, value);
+    return value;
+}
+
+bool BSR_SetSupplyTrainingStacks(int client, int stacks)
+{
+    char steamId[MAX_AUTHID_LENGTH];
+    if (!BSR_TryGetClientSteamId(client, steamId, sizeof(steamId)))
+    {
+        return false;
+    }
+
+    if (stacks <= 0)
+    {
+        g_SupplyTrainingStacksBySteamId.Remove(steamId);
+    }
+    else
+    {
+        g_SupplyTrainingStacksBySteamId.SetValue(steamId, stacks);
+    }
+
+    return true;
+}
+
+float BSR_GetSupplyTrainingBonus(int client)
+{
+    return float(BSR_GetSupplyTrainingStacks(client)) * SUPPLY_TRAINING_BONUS_PER_STACK;
+}
+
 bool BSR_PlayerHasAnyProgress(int client)
 {
     if (
@@ -243,6 +281,7 @@ bool BSR_PlayerHasAnyProgress(int client)
         || BSR_GetSpecialKills(client) > 0
         || BSR_GetCommonKills(client) > 0
         || BSR_GetPendingRewards(client) > 0
+        || BSR_GetSupplyTrainingStacks(client) > 0
     )
     {
         return true;
@@ -283,6 +322,9 @@ void BSR_ResetPlayerData(int client)
     g_SpecialKillsBySteamId.Remove(steamId);
     g_CommonKillsBySteamId.Remove(steamId);
     g_PendingRewardsBySteamId.Remove(steamId);
+    g_SupplyTrainingStacksBySteamId.Remove(steamId);
+    g_SupplyTrainingChapterBySteamId.Remove(steamId);
+    BSR_ResetRuntimeEffectState(client);
 
     for (int perkIndex = 0; perkIndex < view_as<int>(Perk_Count); perkIndex++)
     {
@@ -306,6 +348,14 @@ void BSR_ResetAllPlayerData()
     g_CommonKillsBySteamId.Clear();
     g_PendingRewardsBySteamId.Clear();
     g_PerkLevelsBySteamId.Clear();
+    g_SupplyTrainingStacksBySteamId.Clear();
+    g_SupplyTrainingChapterBySteamId.Clear();
+    BSR_ClearChapterSnapshot();
+
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        BSR_ResetRuntimeEffectState(client);
+    }
 
     LogMessage("All Boss Slayer SteamID data was reset.");
 }

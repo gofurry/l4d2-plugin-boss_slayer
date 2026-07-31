@@ -108,5 +108,6 @@ bool BSR_IsWitchEntity(int entity)
     char classname[32];
     GetEntityClassname(entity, classname, sizeof(classname));
 
-    return StrEqual(classname, "witch", false);
+    return StrEqual(classname, "witch", false)
+        || StrEqual(classname, "witch_bride", false);
 }
