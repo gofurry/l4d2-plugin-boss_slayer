@@ -5,6 +5,14 @@
 
 一个面向《求生之路 2》合作战役的 SourceMod 肉鸽成长插件。玩家通过击杀或参与击杀 Boss、击杀特殊感染者与普通感染者，以及推进章节获得局内升级选择；构筑按照 SteamID 保存，可跨章节和个人死亡延续，团灭后回滚到当前章节开始时的状态。
 
+## 游戏预览
+
+| 当前构筑 | 能力选择 |
+|---|---|
+| ![当前构筑菜单](docs/screenshots/current-build.png) | ![能力选择菜单](docs/screenshots/perk-selection.png) |
+
+![本地化聊天状态提示](docs/screenshots/status-messages.png)
+
 ## 当前功能
 
 | 行为 | 奖励 |

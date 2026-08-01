@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+- Replaced the branded player-facing chat prefix with localized `Notice` / `提示` labels.
+- Simplified perk, build and max-level exchange menu titles for easier server integration.
+- Reworded player authentication and disabled-debug-command messages to avoid exposing implementation details.
+- Added gameplay previews for the build menu, perk selection and localized status output.
+
 ## 1.0.0
 
 - Published the first stable Boss Slayer Roguelite release for cooperative and realism campaigns.
