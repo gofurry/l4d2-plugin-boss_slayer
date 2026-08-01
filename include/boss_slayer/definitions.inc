@@ -3,7 +3,7 @@
 #endif
 #define _boss_slayer_definitions_included
 
-#define BSR_VERSION "1.0.0"
+#define BSR_VERSION "1.0.1"
 
 #define TEAM_SURVIVOR 2
 #define TEAM_INFECTED 3

@@ -27,9 +27,11 @@ void BSR_PrintChat(
     }
 
     char message[256];
+    char prefix[32];
     SetGlobalTransTarget(client);
     VFormat(message, sizeof(message), format, 4);
-    PrintToChat(client, "\x04[Boss Slayer]\x01 %s", message);
+    FormatEx(prefix, sizeof(prefix), "%T", "Chat Prefix", client);
+    PrintToChat(client, "\x04[%s]\x01 %s", prefix, message);
 }
 
 void BSR_PrintChatAll(
@@ -51,16 +53,22 @@ void BSR_PrintChatAll(
         }
 
         char message[256];
+        char prefix[32];
         SetGlobalTransTarget(client);
         VFormat(message, sizeof(message), format, 3);
-        PrintToChat(client, "\x04[Boss Slayer]\x01 %s", message);
+        FormatEx(prefix, sizeof(prefix), "%T", "Chat Prefix", client);
+        PrintToChat(client, "\x04[%s]\x01 %s", prefix, message);
     }
 }
 
 void BSR_ReplyTranslated(int client, const char[] format, any ...)
 {
     char message[256];
-    SetGlobalTransTarget(client > 0 ? client : LANG_SERVER);
+    char prefix[32];
+    int languageTarget = client > 0 ? client : LANG_SERVER;
+
+    SetGlobalTransTarget(languageTarget);
     VFormat(message, sizeof(message), format, 3);
-    ReplyToCommand(client, "[Boss Slayer] %s", message);
+    FormatEx(prefix, sizeof(prefix), "%T", "Chat Prefix", languageTarget);
+    ReplyToCommand(client, "[%s] %s", prefix, message);
 }

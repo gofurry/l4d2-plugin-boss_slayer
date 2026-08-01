@@ -1,5 +1,9 @@
 "Phrases"
 {
+    "Chat Prefix"
+    {
+        "chi"    "提示"
+    }
     "Boss Tank"
     {
         "chi"    "Tank"
@@ -72,7 +76,7 @@
     "Perk Menu Title"
     {
         "#format" "{1:d}"
-        "chi" "Boss Slayer - 选择一项能力\n待选择奖励：{1}\n按 9 稍后选择"
+        "chi" "选择一项能力\n待选择奖励：{1}\n按 9 稍后选择"
     }
     "Perk Menu Item"
     {
@@ -113,7 +117,7 @@
     }
     "SteamID Not Ready"
     {
-        "chi"    "SteamID 尚未准备好，本次奖励没有消耗。"
+        "chi"    "玩家身份验证尚未完成，奖励未消耗，请稍后重试。"
     }
     "Reward Spend Failed"
     {
@@ -128,7 +132,7 @@
     "Exchange Menu Title"
     {
         "#format" "{1:d}"
-        "chi" "Boss Slayer - 所有能力已满级\n兑换一次奖励\n按 9 稍后选择\n待选择奖励：{1}"
+        "chi" "满级奖励兑换\n兑换一次奖励\n按 9 稍后选择\n待选择奖励：{1}"
     }
     "Exchange Health"
     {
@@ -192,7 +196,7 @@
     "Build Menu Title"
     {
         "#format" "{1:d},{2:d},{3:d},{4:d}"
-        "chi" "Boss Slayer - 当前构筑\n能力总等级：{1}｜待选择：{2}\n补给强化：{3}/{4} 层"
+        "chi" "当前构筑\n能力总等级：{1}｜待选择：{2}\n补给强化：{3}/{4} 层"
     }
     "Build Menu Item"
     {
@@ -219,7 +223,7 @@
     }
     "Debug Commands Disabled"
     {
-        "chi" "开发调试命令已被 sm_bsr_debug_commands 禁用。"
+        "chi" "调试命令当前未启用。"
     }
     "Test Special Kills Added"
     {

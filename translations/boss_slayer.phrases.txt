@@ -1,5 +1,9 @@
 "Phrases"
 {
+    "Chat Prefix"
+    {
+        "en"    "Notice"
+    }
     "Boss Tank"
     {
         "en"    "Tank"
@@ -72,7 +76,7 @@
     "Perk Menu Title"
     {
         "#format"    "{1:d}"
-        "en"    "Boss Slayer - Choose one perk\nPending rewards: {1}\nPress 9 to choose later"
+        "en"    "Choose one perk\nPending rewards: {1}\nPress 9 to choose later"
     }
     "Perk Menu Item"
     {
@@ -113,7 +117,7 @@
     }
     "SteamID Not Ready"
     {
-        "en"    "Your SteamID is not ready. The reward was not spent."
+        "en"    "Player authentication is not ready. The reward was not spent. Please try again shortly."
     }
     "Reward Spend Failed"
     {
@@ -128,7 +132,7 @@
     "Exchange Menu Title"
     {
         "#format"    "{1:d}"
-        "en"    "Boss Slayer - All perks maxed\nRedeem one reward\nPress 9 to choose later\nPending rewards: {1}"
+        "en"    "Max-level reward exchange\nRedeem one reward\nPress 9 to choose later\nPending rewards: {1}"
     }
     "Exchange Health"
     {
@@ -192,7 +196,7 @@
     "Build Menu Title"
     {
         "#format"    "{1:d},{2:d},{3:d},{4:d}"
-        "en"    "Boss Slayer - Current build\nPerk levels: {1} | Pending: {2}\nSupply stacks: {3}/{4}"
+        "en"    "Current build\nPerk levels: {1} | Pending: {2}\nSupply stacks: {3}/{4}"
     }
     "Build Menu Item"
     {
@@ -219,7 +223,7 @@
     }
     "Debug Commands Disabled"
     {
-        "en"    "Development commands are disabled by sm_bsr_debug_commands."
+        "en"    "Debug commands are currently disabled."
     }
     "Test Special Kills Added"
     {
